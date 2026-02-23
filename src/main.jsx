@@ -10,6 +10,7 @@ import AdminLogin from "./pages/AdminLogin.jsx";
 import './index.css';
 import RentCpapPage from "./pages/RentCpapPage.jsx";
 import PlaceholderPage from "./pages/PlaceholderPage.jsx";
+import ShopPage from "./pages/ShopPage.jsx";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
@@ -23,7 +24,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                     <Route path="/admin/login" element={<AdminLogin />} />
                     <Route path="/rent-cpap" element={<RentCpapPage />} />
                     <Route path="/about" element={<PlaceholderPage title="about us" />} />
-                    <Route path="/contact" element={<PlaceholderPage title="contact" />} />{/* MUST BE HERE */}
+                    <Route path="/contact" element={<PlaceholderPage title="contact" />} />
+                    <Route path="/shop" element={<ShopPage />} />{/* MUST BE HERE */}
                 </Routes>
             </CartProvider>
         </BrowserRouter>

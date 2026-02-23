@@ -122,10 +122,12 @@ const App = () => {
                 </div>
 
                 {/* Navigation Links */}
-                <nav className="flex gap-6">
-                    <Link to="/" className="text-sm font-bold text-black hover:text-zinc-500 transition-colors">Shop</Link>
-                    <Link to="/rent-cpap" className="text-sm font-bold text-black hover:text-zinc-500 transition-colors">Rent CPAP</Link>
-                    <Link to="/about" className="text-sm font-bold text-black hover:text-zinc-500 transition-colors">About</Link>
+                <nav className="hidden md:block border-t border-slate-100 bg-white">
+                    <div className="max-w-7xl mx-auto px-6 flex gap-10 text-xs tracking-widest uppercase font-bold py-4 text-slate-500">
+                        <Link to="/shop" className="hover:text-[#0B2C5A] transition-colors">Shop</Link>
+                        <Link to="/rent-cpap" className="hover:text-[#0B2C5A] transition-colors">Rent CPAP</Link>
+                        <Link to="/about" className="hover:text-[#0B2C5A] transition-colors">About</Link>
+                    </div>
                 </nav>
             </header>
 
