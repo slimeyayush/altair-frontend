@@ -137,7 +137,11 @@ const App = () => {
                 <div className="relative z-20 max-w-4xl mx-auto flex flex-col items-center">
 
                     {/* The Logo Image Integrated into the Hero */}
-                    <img src="/ignore.png" alt="Altair Health Plus" className="h-32 md:h-48 mb-8 object-contain drop-shadow-xl" />
+                    <img
+                        src="/ignore.png"
+                        alt="Altair Health Plus"
+                        className="h-32 md:h-48 w-auto max-w-full mx-auto mb-8 object-contain"
+                    />
 
                     <h1 className="text-4xl md:text-6xl font-black mb-6 leading-[1.1] tracking-tight text-[#0B2C5A]">
                         Advanced care.<br/>Simplified for you.
