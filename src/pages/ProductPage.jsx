@@ -15,7 +15,7 @@ export default function ProductPage() {
     // 1. Fetch main product
     useEffect(() => {
         setLoading(true);
-        axios.get(`http://localhost:8080/api/products/${id}`)
+        axios.get(`\`${import.meta.env.VITE_API_BASE_URL}/api/products/${id}`)
             .then(response => {
                 setProduct(response.data);
                 setLoading(false);
@@ -29,7 +29,7 @@ export default function ProductPage() {
     // 2. Fetch related products once the main product is known
     useEffect(() => {
         if (product && product.category) {
-            axios.get(`http://localhost:8080/api/products/category/${product.category}`)
+            axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products/category/${product.category}`)
                 .then(response => {
                     // Filter out the current product so it doesn't recommend itself
                     const filtered = response.data.filter(p => p.id !== product.id);

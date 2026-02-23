@@ -17,7 +17,7 @@ export default function AdminLogin() {
 
         try {
             // Send credentials to the new Auth endpoint
-            const response = await axios.post('http://localhost:8080/api/auth/login', {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
                 username: username,
                 password: password
             });

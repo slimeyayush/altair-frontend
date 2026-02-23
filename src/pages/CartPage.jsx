@@ -39,7 +39,7 @@ export default function CartPage() {
 
         try {
             // 2. Send to Backend
-            const response = await axios.post('http://localhost:8080/api/orders/checkout', payload);
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/orders/checkout`, payload);
             const orderId = response.data.id;
 
             // 3. Generate WhatsApp Message with official Order ID
