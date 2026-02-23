@@ -1,0 +1,353 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Package, ShoppingBag, Check, PlusCircle, LogOut, UserPlus, Trash2,Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+export default function AdminDashboard() {
+    const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'inventory', 'add-product', 'add-admin'
+    const [orders, setOrders] = useState([]);
+    const [products, setProducts] = useState([]);
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem('adminToken');
+    const axiosConfig = {
+        headers: { 'Authorization': `Bearer ${token}` }
+    };
+
+    const [newProduct, setNewProduct] = useState({
+        name: '', description: '', price: '', oldPrice: '', stockQuantity: '', category: '', tag: '', imageUrl: ''
+    });
+
+    const [newAdmin, setNewAdmin] = useState({
+        username: '', password: ''
+    });
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/login');
+            return;
+        }
+        fetchData();
+    }, [activeTab, navigate, token]);
+
+    const handleError = (error) => {
+        if (error.response && error.response.status === 401) {
+            handleLogout();
+        } else {
+            console.error("API Error:", error);
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('adminToken');
+        navigate('/admin/login');
+    };
+
+    const handleToggleVisibility = async (productId) => {
+        try {
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/inventory/${productId}/toggle-visibility`, {}, axiosConfig);
+            fetchData();
+        } catch (error) {
+            alert("Failed to toggle product visibility.");
+            handleError(error);
+        }
+    };
+
+    const fetchData = async () => {
+        try {
+            if (activeTab === 'orders') {
+                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/orders`, axiosConfig);
+                setOrders(res.data);
+            } else if (activeTab === 'inventory') {
+                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/inventory`, axiosConfig);
+                setProducts(res.data);
+            }
+        } catch (error) {
+            handleError(error);
+        }
+    };
+
+    const handleMarkPaid = async (orderId) => {
+        try {
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/orders/${orderId}/mark-paid`, {}, axiosConfig);
+            fetchData();
+        } catch (error) {
+            alert("Error marking as paid or stock depleted.");
+            handleError(error);
+        }
+    };
+
+    const handleStatusChange = async (orderId, newStatus) => {
+        try {
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/orders/${orderId}/status`, { status: newStatus }, axiosConfig);
+            fetchData();
+        } catch (error) {
+            handleError(error);
+        }
+    };
+
+    const handleStockUpdate = async (productId, newStock) => {
+        try {
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/inventory/${productId}`, { stockQuantity: parseInt(newStock) }, axiosConfig);
+            fetchData();
+        } catch (error) {
+            handleError(error);
+        }
+    };
+
+    const handleAddProduct = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = {
+                ...newProduct,
+                price: parseFloat(newProduct.price),
+                oldPrice: newProduct.oldPrice ? parseFloat(newProduct.oldPrice) : null,
+                stockQuantity: parseInt(newProduct.stockQuantity)
+            };
+
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/products`, payload, axiosConfig);
+            alert("Product added successfully!");
+
+            setNewProduct({ name: '', description: '', price: '', oldPrice: '', stockQuantity: '', category: '', tag: '', imageUrl: '' });
+            setActiveTab('inventory');
+        } catch (error) {
+            alert("Failed to add product.");
+            handleError(error);
+        }
+    };
+
+    const handleAddAdmin = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/register-admin`, newAdmin, axiosConfig);
+            alert(`Admin user '${newAdmin.username}' created successfully!`);
+            setNewAdmin({ username: '', password: '' });
+        } catch (error) {
+            alert(error.response?.data || "Failed to create admin. Username might already exist.");
+            handleError(error);
+        }
+    };
+
+    const handleProductInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewProduct(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleAdminInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewAdmin(prev => ({ ...prev, [name]: value }));
+    };
+    return (
+        <div className="min-h-screen bg-black text-zinc-50 font-sans flex">
+
+            <aside className="w-64 bg-zinc-950 border-r border-zinc-900 p-6 flex flex-col hidden md:flex shrink-0">
+                <div className="text-2xl font-black text-white tracking-tighter mb-12">admin.</div>
+                <nav className="space-y-4 flex-1">
+                    <button
+                        onClick={() => setActiveTab('orders')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'orders' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}
+                    >
+                        <ShoppingBag className="w-5 h-5" /> Orders
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('inventory')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'inventory' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}
+                    >
+                        <Package className="w-5 h-5" /> Inventory
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('add-product')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'add-product' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}
+                    >
+                        <PlusCircle className="w-5 h-5" /> Add Product
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('add-admin')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'add-admin' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}
+                    >
+                        <UserPlus className="w-5 h-5" /> Add Admin
+                    </button>
+                </nav>
+
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold text-red-500 hover:bg-zinc-900 transition-colors mt-auto"
+                >
+                    <LogOut className="w-5 h-5" /> Logout
+                </button>
+            </aside>
+
+            <main className="flex-1 p-8 md:p-12 overflow-y-auto">
+                <h1 className="text-3xl font-black mb-8 tracking-tighter uppercase">
+                    {activeTab === 'orders' && 'Order Management'}
+                    {activeTab === 'inventory' && 'Inventory Management'}
+                    {activeTab === 'add-product' && 'Add New Product'}
+                    {activeTab === 'add-admin' && 'Register New Admin'}
+                </h1>
+
+                {/* ... (Orders and Inventory tables remain exactly the same) ... */}
+                {activeTab === 'orders' && (
+                    <div className="overflow-x-auto border border-zinc-900 rounded-xl">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
+                            <thead className="bg-zinc-950 text-zinc-400 font-mono uppercase text-xs">
+                            <tr>
+                                <th className="p-4 border-b border-zinc-900">ID</th>
+                                <th className="p-4 border-b border-zinc-900">Email</th>
+                                <th className="p-4 border-b border-zinc-900">Total (₹)</th>
+                                <th className="p-4 border-b border-zinc-900">Status</th>
+                                <th className="p-4 border-b border-zinc-900">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-900">
+                            {orders.map(order => (
+                                <tr key={order.id} className="hover:bg-zinc-900/50">
+                                    <td className="p-4 font-mono">#{order.id}</td>
+                                    <td className="p-4">{order.customerEmail}</td>
+                                    <td className="p-4 font-bold">{order.totalAmount}</td>
+                                    <td className="p-4">
+                                      <span className={`px-2 py-1 text-xs font-bold rounded uppercase tracking-widest ${order.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-green-500/10 text-green-500'}`}>
+                                        {order.status}
+                                      </span>
+                                    </td>
+                                    <td className="p-4 flex gap-2">
+                                        {order.status === 'PENDING' ? (
+                                            <button onClick={() => handleMarkPaid(order.id)} className="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-500">
+                                                Mark Paid
+                                            </button>
+                                        ) : (
+                                            <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="bg-zinc-950 border border-zinc-800 text-white text-xs rounded p-1">
+                                                <option value="PAID">PAID</option>
+                                                <option value="SHIPPED">SHIPPED</option>
+                                                <option value="DELIVERED">DELIVERED</option>
+                                            </select>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {activeTab === 'inventory' && (
+                    <div className="overflow-x-auto border border-zinc-900 rounded-xl">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
+                            <thead className="bg-slate-50 text-slate-500 font-mono uppercase text-xs">
+                            <tr>
+                                <th className="p-4 border-b border-slate-200">ID</th>
+                                <th className="p-4 border-b border-slate-200">Name</th>
+                                <th className="p-4 border-b border-slate-200">Status</th>
+                                <th className="p-4 border-b border-slate-200">Stock Update</th>
+                                <th className="p-4 border-b border-slate-200 text-right">Visibility</th>
+                            </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                            {products.map(product => (
+                                <tr key={product.id} className={`hover:bg-slate-50 transition-colors ${!product.active ? 'opacity-50 grayscale' : ''}`}>
+                                    <td className="p-4 font-mono text-slate-500">#{product.id}</td>
+                                    <td className="p-4 font-bold text-slate-900 truncate max-w-[200px]">{product.name}</td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-widest ${product.active ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'}`}>
+                                            {product.active ? 'Active' : 'Archived'}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 flex gap-2">
+                                        <input type="number" defaultValue={product.stockQuantity} id={`stock-${product.id}`} className="w-16 bg-white border border-slate-200 text-slate-900 text-sm rounded p-1 text-center focus:outline-none focus:border-[#0B2C5A]" />
+                                        <button onClick={() => handleStockUpdate(product.id, document.getElementById(`stock-${product.id}`).value)} className="bg-slate-100 text-[#0B2C5A] p-1.5 rounded hover:bg-[#0B2C5A] hover:text-white transition-colors" title="Save Stock">
+                                            <Check className="w-4 h-4" />
+                                        </button>
+                                    </td>
+                                    <td className="p-4 text-right">
+                                        <button
+                                            onClick={() => handleToggleVisibility(product.id)}
+                                            className={`p-2 rounded-lg transition-colors ${product.active ? 'text-slate-400 hover:bg-red-50 hover:text-red-600' : 'text-slate-400 hover:bg-green-50 hover:text-green-600'}`}
+                                            title={product.active ? "Hide from Storefront" : "Show on Storefront"}
+                                        >
+                                            {product.active ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {activeTab === 'add-product' && (
+                    <form onSubmit={handleAddProduct} className="max-w-2xl bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Product Name *</label>
+                                <input required type="text" name="name" value={newProduct.name} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Description *</label>
+                                <textarea required name="description" value={newProduct.description} onChange={handleProductInputChange} rows="3" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white"></textarea>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Price (₹) *</label>
+                                <input required type="number" step="0.01" name="price" value={newProduct.price} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Old Price (₹)</label>
+                                <input type="number" step="0.01" name="oldPrice" value={newProduct.oldPrice} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Initial Stock *</label>
+                                <input required type="number" name="stockQuantity" value={newProduct.stockQuantity} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Category *</label>
+                                <input required type="text" name="category" value={newProduct.category} onChange={handleProductInputChange} placeholder="e.g. Masks" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Tag</label>
+                                <input type="text" name="tag" value={newProduct.tag} onChange={handleProductInputChange} placeholder="e.g. Best Seller" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Image URL</label>
+                                <input type="url" name="imageUrl" value={newProduct.imageUrl} onChange={handleProductInputChange} placeholder="https://..." className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+                        </div>
+                        <button type="submit" className="mt-8 w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
+                            Save Product
+                        </button>
+                    </form>
+                )}
+
+                {/* Add Admin Form */}
+                {activeTab === 'add-admin' && (
+                    <form onSubmit={handleAddAdmin} className="max-w-md bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">New Username *</label>
+                                <input
+                                    required
+                                    type="text"
+                                    name="username"
+                                    value={newAdmin.username}
+                                    onChange={handleAdminInputChange}
+                                    className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Temporary Password *</label>
+                                <input
+                                    required
+                                    type="password"
+                                    name="password"
+                                    value={newAdmin.password}
+                                    onChange={handleAdminInputChange}
+                                    className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white"
+                                />
+                            </div>
+                        </div>
+                        <button type="submit" className="mt-8 w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
+                            Register Admin
+                        </button>
+                    </form>
+                )}
+            </main>
+        </div>
+    );
+}
