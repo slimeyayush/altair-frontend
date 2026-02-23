@@ -8,6 +8,8 @@ import AdminDashboard from './pages/AdminDashboard.jsx'; // MUST BE IMPORTED
 import { CartProvider } from './context/CartContext.jsx';
 import AdminLogin from "./pages/AdminLogin.jsx";
 import './index.css';
+import RentCpapPage from "./pages/RentCpapPage.jsx";
+import PlaceholderPage from "./pages/PlaceholderPage.jsx";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
@@ -18,7 +20,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/product/:id" element={<ProductPage />} />
                     <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/admin/login" element={<AdminLogin />} />{/* MUST BE HERE */}
+                    <Route path="/admin/login" element={<AdminLogin />} />
+                    <Route path="/rent-cpap" element={<RentCpapPage />} />
+                    <Route path="/about" element={<PlaceholderPage title="about us" />} />
+                    <Route path="/contact" element={<PlaceholderPage title="contact" />} />{/* MUST BE HERE */}
                 </Routes>
             </CartProvider>
         </BrowserRouter>
