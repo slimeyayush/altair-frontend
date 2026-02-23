@@ -15,7 +15,7 @@ export default function ProductPage() {
     // 1. Fetch main product
     useEffect(() => {
         setLoading(true);
-        axios.get(`\`${import.meta.env.VITE_API_BASE_URL}/api/products/${id}`)
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products/${id}`)
             .then(response => {
                 setProduct(response.data);
                 setLoading(false);
