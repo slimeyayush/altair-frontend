@@ -34,10 +34,23 @@ export default function AdminDashboard() {
     }, [activeTab, navigate, token]);
 
     const handleError = (error) => {
-        if (error.response && error.response.status === 401) {
+        // Catch both 401 (Unauthorized) and 403 (Forbidden)
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            alert("Session expired. Please log in again.");
             handleLogout();
         } else {
             console.error("API Error:", error);
+        }
+    };
+    const handleDeleteAdmin = async (id, username) => {
+        if (!window.confirm(`Are you sure you want to delete admin '${username}'?`)) return;
+
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/admin/admins/${id}`, axiosConfig);
+            fetchData(); // Refresh list after deletion
+        } catch (error) {
+            alert("Failed to delete admin.");
+            handleError(error);
         }
     };
 
@@ -343,10 +356,19 @@ export default function AdminDashboard() {
                                 <p className="text-sm text-zinc-500 font-mono">[ no admins loaded ]</p>
                             ) : (
                                 <ul className="space-y-3">
-                                    {admins.map((admin, idx) => (
-                                        <li key={idx} className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-lg">
-                                            <span className="font-bold text-white">{admin.username}</span>
-                                            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Active</span>
+                                    {admins.map((admin) => (
+                                        <li key={admin.id} className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-lg group">
+                                            <div className="flex items-center gap-4">
+                                                <span className="font-bold text-white">{admin.username}</span>
+                                                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest bg-zinc-900 px-2 py-1 rounded">Active</span>
+                                            </div>
+                                            <button
+                                                onClick={() => handleDeleteAdmin(admin.id, admin.username)}
+                                                className="p-2 text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                                title="Delete Admin"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
                                         </li>
                                     ))}
                                 </ul>
