@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Package, ShoppingBag, Check, PlusCircle, LogOut, UserPlus, Eye, EyeOff, Edit2, X ,Trash2 } from 'lucide-react';
+import { Package, ShoppingBag, Check, PlusCircle, LogOut, UserPlus, Eye, EyeOff, Edit2, X, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
+    // 1. Define the hardcoded categories here
+    const CATEGORY_OPTIONS = [
+        "Diagnostic Tools",
+        "Mobility Aids",
+        "Surgical Instruments",
+        "PPE",
+        "Sleep Apnea",
+        "CPAP Masks",
+        "Accessories",
+        "Hospital Equip"
+    ];
+
     const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'inventory', 'add-product', 'add-admin'
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
@@ -42,6 +54,7 @@ export default function AdminDashboard() {
             console.error("API Error:", error);
         }
     };
+
     const handleDeleteAdmin = async (id, username) => {
         if (!window.confirm(`Are you sure you want to delete admin '${username}'?`)) return;
 
@@ -328,10 +341,24 @@ export default function AdminDashboard() {
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Initial Stock *</label>
                                 <input required type="number" name="stockQuantity" value={newProduct.stockQuantity} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
+
+                            {/* CATEGORY DROPDOWN - Add Product */}
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Category *</label>
-                                <input required type="text" name="category" value={newProduct.category} onChange={handleProductInputChange} placeholder="e.g. Masks" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                                <select
+                                    required
+                                    name="category"
+                                    value={newProduct.category}
+                                    onChange={handleProductInputChange}
+                                    className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white appearance-none"
+                                >
+                                    <option value="" disabled>Select category...</option>
+                                    {CATEGORY_OPTIONS.map((cat, idx) => (
+                                        <option key={idx} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
                             </div>
+
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Tag</label>
                                 <input type="text" name="tag" value={newProduct.tag} onChange={handleProductInputChange} placeholder="e.g. Best Seller" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
@@ -427,10 +454,23 @@ export default function AdminDashboard() {
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Stock Quantity</label>
                                 <input required type="number" value={editingProduct.stockQuantity} onChange={e => setEditingProduct({...editingProduct, stockQuantity: parseInt(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
+
+                            {/* CATEGORY DROPDOWN - Edit Product */}
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Category</label>
-                                <input required type="text" value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                                <select
+                                    required
+                                    value={editingProduct.category}
+                                    onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}
+                                    className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white appearance-none"
+                                >
+                                    <option value="" disabled>Select category...</option>
+                                    {CATEGORY_OPTIONS.map((cat, idx) => (
+                                        <option key={idx} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
                             </div>
+
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Tag</label>
                                 <input type="text" value={editingProduct.tag || ''} onChange={e => setEditingProduct({...editingProduct, tag: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
