@@ -3,7 +3,7 @@ import axios from 'axios';
 import { ShoppingCart, Plus, Minus, Eye, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import Navbar from "./Navbar.jsx"; // Adjust path if needed
+import Navbar from "./Navbar.jsx";// Ensure correct path
 
 export default function ShopPage() {
     const [products, setProducts] = useState([]);
@@ -54,9 +54,13 @@ export default function ShopPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans py-12">
-          <Navbar />
-            <div className="max-w-7xl mx-auto px-6">
+        // Removed py-12 from the outermost div so Navbar sits flush at top
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+
+            <Navbar />
+
+            {/* Added py-12 here instead to pad the content below the Navbar */}
+            <div className="max-w-7xl mx-auto px-6 py-12">
 
                 {/* Altair Minimalist Header */}
                 <h1 className="text-4xl md:text-5xl font-black mb-16 tracking-tighter lowercase border-b border-slate-200 pb-8 text-[#0B2C5A]">
@@ -87,7 +91,7 @@ export default function ShopPage() {
                                             {/* Image Section - Clickable */}
                                             <Link to={`/product/${product.id}`} className="relative aspect-square bg-slate-50 flex items-center justify-center p-6 overflow-hidden">
                                                 {product.tag && (
-                                                    <span className="absolute top-4 left-4 z-10 bg-blue-600 text-white text-[10px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full shadow-sm">
+                                                    <span className="absolute top-4 left-4 z-10 bg-[#00A152] text-white text-[10px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full shadow-sm">
                                                         {product.tag}
                                                     </span>
                                                 )}
@@ -113,7 +117,7 @@ export default function ShopPage() {
                                                 </div>
 
                                                 {/* Title & Category */}
-                                                <Link to={`/product/${product.id}`} className="hover:text-blue-600 transition-colors">
+                                                <Link to={`/product/${product.id}`} className="hover:text-[#0B2C5A] transition-colors">
                                                     <h3 className="font-bold text-slate-900 leading-tight mb-1 line-clamp-2 text-sm">{product.name}</h3>
                                                 </Link>
                                                 <p className="text-xs text-slate-500 mb-4">{product.category}</p>
@@ -133,12 +137,12 @@ export default function ShopPage() {
 
                                                     {/* Cart Controls or Add Button */}
                                                     {cartItem ? (
-                                                        <div className="flex-1 flex items-center justify-between border border-blue-600 rounded-lg bg-blue-50 h-10 px-1">
-                                                            <button onClick={() => updateQuantity(product.id, -1)} className="w-8 h-8 hover:bg-white text-blue-700 rounded flex items-center justify-center transition-colors shadow-sm">
+                                                        <div className="flex-1 flex items-center justify-between border border-[#0B2C5A] rounded-lg bg-slate-50 h-10 px-1">
+                                                            <button onClick={() => updateQuantity(product.id, -1)} className="w-8 h-8 hover:bg-white text-[#0B2C5A] rounded flex items-center justify-center transition-colors shadow-sm">
                                                                 <Minus className="w-4 h-4" />
                                                             </button>
-                                                            <span className="font-bold text-sm text-blue-700 w-8 text-center">{cartItem.quantity}</span>
-                                                            <button onClick={() => updateQuantity(product.id, 1)} disabled={cartItem.quantity >= product.stockQuantity} className="w-8 h-8 hover:bg-white disabled:opacity-50 text-blue-700 rounded flex items-center justify-center transition-colors shadow-sm">
+                                                            <span className="font-bold text-sm text-[#0B2C5A] w-8 text-center">{cartItem.quantity}</span>
+                                                            <button onClick={() => updateQuantity(product.id, 1)} disabled={cartItem.quantity >= product.stockQuantity} className="w-8 h-8 hover:bg-white disabled:opacity-50 text-[#0B2C5A] rounded flex items-center justify-center transition-colors shadow-sm">
                                                                 <Plus className="w-4 h-4" />
                                                             </button>
                                                         </div>
@@ -146,7 +150,7 @@ export default function ShopPage() {
                                                         <button
                                                             onClick={() => addToCart(product)}
                                                             disabled={product.stockQuantity <= 0}
-                                                            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white flex items-center justify-center gap-2 h-10 rounded-lg font-bold text-xs transition-colors shadow-sm"
+                                                            className="flex-1 bg-[#0B2C5A] hover:bg-[#082042] disabled:bg-slate-100 disabled:text-slate-400 text-white flex items-center justify-center gap-2 h-10 rounded-lg font-bold text-xs transition-colors shadow-sm"
                                                         >
                                                             <ShoppingCart className="w-4 h-4" />
                                                             {product.stockQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
@@ -156,7 +160,7 @@ export default function ShopPage() {
                                                     {/* View Item Button */}
                                                     <Link
                                                         to={`/product/${product.id}`}
-                                                        className="w-10 h-10 flex shrink-0 items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                                                        className="w-10 h-10 flex shrink-0 items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#0B2C5A] hover:bg-slate-50 hover:border-[#0B2C5A]/30 transition-colors"
                                                     >
                                                         <Eye className="w-4 h-4" />
                                                     </Link>

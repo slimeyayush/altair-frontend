@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, User, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useCart } from '../context/CartContext'; // Adjust path based on where Navbar.jsx is located
+import { useCart } from '../context/CartContext';
 
 export default function Navbar() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -14,7 +14,6 @@ export default function Navbar() {
 
     // Debounced search effect
     useEffect(() => {
-        // If empty, just do nothing. The onChange handler takes care of clearing it.
         if (!searchQuery.trim()) return;
 
         const delayDebounceFn = setTimeout(async () => {
@@ -32,10 +31,14 @@ export default function Navbar() {
 
     return (
         <header className="bg-white border-b border-slate-100 sticky top-0 z-50 transition-all duration-300">
-            <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-6 md:gap-8">
+            {/* Changed to max-w-5xl to pull everything toward the center.
+              Using justify-between keeps the left and right groups neatly separated
+              but confined to this narrower central column.
+            */}
+            <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between gap-4">
 
                 {/* LEFT SIDE: Logo & Navigation */}
-                <div className="flex items-center gap-10 lg:gap-14">
+                <div className="flex items-center gap-8 md:gap-12">
                     {/* Mobile Menu Icon */}
                     <Menu className="md:hidden text-slate-600 cursor-pointer hover:text-[#0B2C5A]" />
 
@@ -47,7 +50,7 @@ export default function Navbar() {
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
+                    <nav className="hidden md:flex items-center gap-7 text-[15px] font-bold text-[#0B2C5A]/80">
                         <Link to="/shop" className="hover:text-[#0B2C5A] transition-colors">Shop</Link>
                         <Link to="/rent-cpap" className="hover:text-[#0B2C5A] transition-colors">Rent CPAP</Link>
                         <Link to="/about" className="hover:text-[#0B2C5A] transition-colors">About</Link>
@@ -56,11 +59,10 @@ export default function Navbar() {
                 </div>
 
                 {/* RIGHT SIDE: Search & Icons */}
-                <div className="flex items-center gap-6 lg:gap-8 flex-1 justify-end">
+                <div className="flex items-center gap-6">
 
-                    {/* Search Bar (Matches Screenshot Style) */}
-                    <div className="hidden md:block relative group w-full max-w-[320px] z-50">
-                        {/* Search Icon moved to the left */}
+                    {/* Search Bar */}
+                    <div className="hidden md:block relative group w-[260px] lg:w-[320px] z-50">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-hover:text-[#0B2C5A] peer-focus:text-[#0B2C5A] transition-colors z-10" />
 
                         <input
@@ -69,7 +71,6 @@ export default function Navbar() {
                             onChange={(e) => {
                                 const val = e.target.value;
                                 setSearchQuery(val);
-                                // Clear results immediately when user deletes the text
                                 if (!val.trim()) {
                                     setSearchResults([]);
                                     setIsSearchOpen(false);
@@ -118,13 +119,13 @@ export default function Navbar() {
                     </div>
 
                     {/* Icons */}
-                    <div className="flex items-center gap-5 shrink-0">
-                        <Link to="/admin/login" className="text-slate-600 hover:text-[#0B2C5A] transition-colors p-1">
+                    <div className="flex items-center gap-4 shrink-0">
+                        <Link to="/admin/login" className="text-[#0B2C5A]/80 hover:text-[#0B2C5A] transition-colors p-1">
                             <User className="w-5 h-5" />
                         </Link>
 
                         <Link to="/cart" className="relative cursor-pointer group flex items-center p-1">
-                            <ShoppingCart className="w-5 h-5 text-slate-600 group-hover:text-[#0B2C5A] transition-colors" />
+                            <ShoppingCart className="w-5 h-5 text-[#0B2C5A]/80 group-hover:text-[#0B2C5A] transition-colors" />
                             {totalCartItems > 0 && (
                                 <span className="absolute -top-1.5 -right-1.5 bg-[#00A152] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
                                     {totalCartItems}

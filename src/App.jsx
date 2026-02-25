@@ -3,7 +3,8 @@ import { ShoppingCart, Minus, Plus, MessageCircle, ArrowRight } from 'lucide-rea
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from './context/CartContext';
-import Navbar from './components/Navbar'; // Adjust path based on where you saved it
+import Navbar from "./pages/Navbar.jsx";
+ // Adjust path based on where you saved it
 
 const App = () => {
     const [products, setProducts] = useState([]);
