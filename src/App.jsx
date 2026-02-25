@@ -162,7 +162,7 @@ const App = () => {
 
             {/* MODIFIED: Shop by Category Section pulled up slightly with elegant gradient overlays */}
             {Object.keys(categoryData).length > 0 && (
-                <section className="max-w-7xl mx-auto px-6 pt-10 pb-8">
+                <section className="max-w-7xl mx-auto px-6 pt-6 pb-8">
                     <h2 className="text-xl md:text-2xl font-black tracking-tight text-[#0B2C5A] mb-5">Shop by Category</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                         {Object.entries(categoryData).map(([categoryName, imageUrl], idx) => (
