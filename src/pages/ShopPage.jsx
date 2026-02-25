@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ShoppingCart, Plus, Minus, Eye, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext'; // Adjust path if needed
+import { useCart } from '../context/CartContext';
+import Navbar from "./Navbar.jsx"; // Adjust path if needed
 
 export default function ShopPage() {
     const [products, setProducts] = useState([]);
@@ -54,6 +55,7 @@ export default function ShopPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans py-12">
+          <Navbar />
             <div className="max-w-7xl mx-auto px-6">
 
                 {/* Altair Minimalist Header */}

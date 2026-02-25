@@ -3,6 +3,7 @@ import { Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Navbar from "./Navbar.jsx";
 
 export default function CartPage() {
     const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -34,7 +35,7 @@ export default function CartPage() {
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/orders/checkout`, payload);
             const orderId = response.data.id;
 
-            const phoneNumber = "918800537507";
+            const phoneNumber = "919899541587";
             let text = `Hello! I have placed an order.\n\n*Order ID:* #${orderId}\n*Email:* ${email}\n\n`;
 
             cartItems.forEach(item => {
@@ -58,7 +59,9 @@ export default function CartPage() {
     };
 
     return (
+
         <div className="min-h-screen bg-white text-zinc-900 font-sans py-12">
+            <Navbar />
             <div className="max-w-7xl mx-auto px-6">
                 <Link to="/" className="text-zinc-500 hover:text-black text-xs font-bold uppercase tracking-widest mb-8 inline-block transition-colors">
                     &larr; Back to Shop
