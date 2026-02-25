@@ -230,31 +230,34 @@ export default function ProductPage() {
                 </div>
 
                 {/* Related Products Section (Matches the new App.jsx card styles) */}
+                {/* Related Products Section (Grid format) */}
                 {relatedProducts.length > 0 && (
                     <div className="border-t border-slate-200 pt-16 pb-12">
                         <h2 className="text-2xl font-black mb-8 tracking-tight text-[#0B2C5A]">You May Also Like</h2>
 
-                        {/* Horizontal Scroll Container */}
-                        <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {relatedProducts.map((item) => (
+                        {/* Standard 4-Column Grid (Sliced to 4 items max) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {relatedProducts.slice(0, 4).map((item) => (
                                 <Link
                                     to={`/product/${item.id}`}
                                     key={item.id}
-                                    className="min-w-[280px] md:min-w-[300px] snap-start bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#00A152]/30 hover:-translate-y-1 rounded-3xl p-6 flex flex-col transition-all duration-300 group"
+                                    className="bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#00A152]/30 hover:-translate-y-1 rounded-3xl p-5 flex flex-col transition-all duration-300 group"
                                 >
-                                    <div className="w-full aspect-square bg-slate-50 rounded-2xl mb-6 flex items-center justify-center overflow-hidden p-6 relative mix-blend-multiply transition-colors group-hover:bg-[#0B2C5A]/5">
+                                    <div className="w-full aspect-square bg-slate-50 rounded-2xl mb-5 flex items-center justify-center overflow-hidden p-6 relative mix-blend-multiply transition-colors group-hover:bg-[#0B2C5A]/5">
                                         {item.imageUrl ? (
                                             <img src={item.imageUrl} alt={item.name} className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-500" />
                                         ) : (
                                             <span className="font-mono text-slate-300 text-xs">no_image_data</span>
                                         )}
                                     </div>
-                                    <h4 className="text-base font-bold text-slate-900 mb-2 leading-snug line-clamp-2">{item.name}</h4>
-                                    <p className="text-xs text-slate-500 mb-4">{item.category}</p>
-                                    <div className="flex items-end gap-2 mt-auto">
-                                        <span className="text-xl font-black text-[#0B2C5A]">₹{item.price.toLocaleString('en-IN')}</span>
+                                    <h4 className="text-sm font-bold text-slate-900 mb-1 leading-snug line-clamp-2">{item.name}</h4>
+                                    <p className="text-xs text-slate-500 mb-3">{item.category}</p>
+
+                                    <div className="flex items-end gap-2 mt-auto mb-4">
+                                        <span className="text-lg font-black text-[#0B2C5A]">₹{item.price.toLocaleString('en-IN')}</span>
                                     </div>
-                                    <div className="mt-4 w-full border border-slate-200 text-[#0B2C5A] font-bold text-xs py-2.5 rounded-lg text-center group-hover:bg-[#0B2C5A] group-hover:text-white transition-colors">
+
+                                    <div className="w-full border border-slate-200 text-[#0B2C5A] font-bold text-xs py-2.5 rounded-lg text-center group-hover:bg-[#0B2C5A] group-hover:text-white transition-colors">
                                         View Details
                                     </div>
                                 </Link>
