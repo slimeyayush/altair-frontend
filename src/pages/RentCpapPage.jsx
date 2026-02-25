@@ -12,7 +12,7 @@ export default function RentCpapPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white text-zinc-900 font-sans py-12">
+        <div className="min-h-screen bg-white text-zinc-900 font-sans ">
             <Navbar />
             <div className="max-w-7xl mx-auto px-6">
                 <Link to="/" className="text-zinc-500 hover:text-black text-xs font-bold uppercase tracking-widest mb-8 inline-block transition-colors">
