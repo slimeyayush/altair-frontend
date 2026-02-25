@@ -18,7 +18,13 @@ const App = () => {
     }, []);
 
     // Dynamically extract unique categories from the database products
-    const uniqueCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+    const categoryData = [...new Set(products.map(p => p.category).filter(Boolean))].map(category => {
+        const firstProduct = products.find(p => p.category === category && p.imageUrl);
+        return {
+            name: category,
+            imageUrl: firstProduct ? firstProduct.imageUrl : null
+        };
+    });
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[#00A152] selection:text-white">
@@ -42,22 +48,34 @@ const App = () => {
             </section>
 
             {/* Shop by Category Section */}
-            {uniqueCategories.length > 0 && (
-                <section className="max-w-7xl mx-auto px-6 pt-20 pb-10">
-                    <h2 className="text-2xl font-black tracking-tight text-[#0B2C5A] mb-8">Shop by Category</h2>
+            {/* Shop by Category Section */}
+            {categoryData.length > 0 && (
+                <section className="max-w-7xl mx-auto px-6 pb-12 mt-4">
+                    <h2 className="text-2xl font-black tracking-tight text-[#0B2C5A] mb-6">Shop by Category</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {uniqueCategories.map((category, idx) => (
+                        {categoryData.map((category, idx) => (
                             <Link
-                                to="/shop"
+                                to={`/shop?category=${encodeURIComponent(category.name)}`}
                                 key={idx}
-                                className="group relative h-40 md:h-48 rounded-2xl overflow-hidden bg-slate-900 flex items-end p-6 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300"
+                                className="group relative h-40 md:h-48 rounded-2xl overflow-hidden bg-slate-100 flex items-end p-6 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#0B2C5A] to-slate-900 opacity-90 group-hover:scale-105 transition-transform duration-500"></div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                                {/* Render the extracted image if it exists */}
+                                {category.imageUrl ? (
+                                    <img
+                                        src={category.imageUrl}
+                                        alt={category.name}
+                                        className="absolute inset-0 w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 bg-gradient-to-br from-[#0B2C5A] to-slate-900 opacity-90 group-hover:scale-105 transition-transform duration-500"></div>
+                                )}
+
+                                {/* Gradient overlay so the white text is always readable over images */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
 
                                 <span className="relative z-10 text-white font-bold text-lg md:text-xl tracking-tight leading-tight group-hover:-translate-y-1 transition-transform duration-300">
-                                    {category}
-                                </span>
+                        {category.name}
+                    </span>
                             </Link>
                         ))}
                     </div>
