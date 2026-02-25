@@ -146,7 +146,7 @@ const App = () => {
             </header>
 
             {/* MODIFIED: Tighter Hero Section to reveal Categories on Laptops */}
-            <section className="relative w-full py-10 md:py-14 flex items-center justify-center text-center px-4 overflow-hidden bg-gradient-to-br from-[#0B2C5A]/5 via-white to-[#00A152]/5 border-b border-slate-200/50">
+            <section className="relative w-full py-6 md:py-14 flex items-center justify-center text-center px-4 overflow-hidden bg-gradient-to-br from-[#0B2C5A]/5 via-white to-[#00A152]/5 border-b border-slate-200/50">
                 <div className="relative z-20 max-w-4xl mx-auto flex flex-col items-center">
                     <h1 className="text-3xl md:text-5xl font-black mb-4 leading-[1.1] tracking-tight text-[#0B2C5A]">
                         Advanced care.<br/>Simplified for you.
