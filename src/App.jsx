@@ -22,7 +22,7 @@ const App = () => {
 
     // Debounced search effect
     useEffect(() => {
-        if (!searchQuery.trim()) return; // Exit early. The onChange handler manages the empty state.
+        if (!searchQuery.trim()) return;
 
         const delayDebounceFn = setTimeout(async () => {
             try {
@@ -37,15 +37,12 @@ const App = () => {
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery]);
 
-    // NEW: Extract unique categories AND grab the first available image for each category
     // Extract unique categories AND grab the first available image
     const categoryData = products.reduce((acc, product) => {
         if (product.category) {
-            // If category doesn't exist yet, add it (with image or null)
             if (acc[product.category] === undefined) {
                 acc[product.category] = product.imageUrl || null;
             }
-            // If it exists but has no image, and the current product DOES have an image, update it
             else if (acc[product.category] === null && product.imageUrl) {
                 acc[product.category] = product.imageUrl;
             }
@@ -72,7 +69,14 @@ const App = () => {
                         <input
                             type="text"
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSearchQuery(val);
+                                if (!val.trim()) {
+                                    setSearchResults([]);
+                                    setIsSearchOpen(false);
+                                }
+                            }}
                             onFocus={() => searchQuery.trim() && setIsSearchOpen(true)}
                             onBlur={() => setTimeout(() => setIsSearchOpen(false), 200)}
                             placeholder="Search premium medical equipment..."
@@ -141,8 +145,8 @@ const App = () => {
                 </nav>
             </header>
 
-            {/* MODIFIED: Slimmer Hero Section so Categories appear Above the Fold */}
-            <section className="relative w-full py-12 md:py-16 flex items-center justify-center text-center px-4 overflow-hidden bg-gradient-to-br from-[#0B2C5A]/5 via-white to-[#00A152]/5 border-b border-slate-200/50">
+            {/* MODIFIED: Tighter Hero Section to reveal Categories on Laptops */}
+            <section className="relative w-full py-10 md:py-14 flex items-center justify-center text-center px-4 overflow-hidden bg-gradient-to-br from-[#0B2C5A]/5 via-white to-[#00A152]/5 border-b border-slate-200/50">
                 <div className="relative z-20 max-w-4xl mx-auto flex flex-col items-center">
                     <h1 className="text-3xl md:text-5xl font-black mb-4 leading-[1.1] tracking-tight text-[#0B2C5A]">
                         Advanced care.<br/>Simplified for you.
@@ -150,30 +154,30 @@ const App = () => {
                     <p className="text-base md:text-lg text-slate-600 mb-6 max-w-2xl font-medium leading-relaxed">
                         Experience the next generation of premium medical equipment, curated for reliability and delivered directly to your home.
                     </p>
-                    <Link to="/shop" className="flex items-center gap-2 bg-[#0B2C5A] text-white px-6 py-3 rounded-full font-bold hover:bg-[#082042] hover:shadow-lg hover:shadow-[#0B2C5A]/20 hover:-translate-y-0.5 transition-all duration-300 text-sm">
+                    <Link to="/shop" className="flex items-center gap-2 bg-[#0B2C5A] text-white px-7 py-3.5 rounded-full font-bold hover:bg-[#082042] hover:shadow-lg hover:shadow-[#0B2C5A]/20 hover:-translate-y-0.5 transition-all duration-300 text-sm">
                         Explore Equipment <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
             </section>
 
-            {/* MODIFIED: Shop by Category Section with Dynamic Product Images */}
+            {/* MODIFIED: Shop by Category Section pulled up slightly with elegant gradient overlays */}
             {Object.keys(categoryData).length > 0 && (
-                <section className="max-w-7xl mx-auto px-6 pt-12 pb-8">
-                    <h2 className="text-xl md:text-2xl font-black tracking-tight text-[#0B2C5A] mb-6">Shop by Category</h2>
+                <section className="max-w-7xl mx-auto px-6 pt-10 pb-8">
+                    <h2 className="text-xl md:text-2xl font-black tracking-tight text-[#0B2C5A] mb-5">Shop by Category</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                         {Object.entries(categoryData).map(([categoryName, imageUrl], idx) => (
                             <Link
                                 to="/shop"
                                 key={idx}
-                                className="group relative h-32 md:h-40 rounded-2xl overflow-hidden bg-white flex items-end p-5 cursor-pointer shadow-sm hover:shadow-xl border border-slate-100 transition-all duration-300"
+                                className="group relative h-36 md:h-44 rounded-2xl overflow-hidden bg-slate-50 flex flex-col justify-end p-5 cursor-pointer shadow-sm hover:shadow-md border border-slate-200 transition-all duration-300"
                             >
-                                {/* Image Layer */}
+                                {/* Product Image Centered */}
                                 {imageUrl ? (
-                                    <div className="absolute inset-0 p-4">
+                                    <div className="absolute inset-0 p-6 pb-12 flex items-center justify-center">
                                         <img
                                             src={imageUrl}
                                             alt={categoryName}
-                                            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
+                                            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
                                         />
                                     </div>
                                 ) : (
@@ -182,10 +186,10 @@ const App = () => {
                                     </div>
                                 )}
 
-                                {/* Gradient Overlay for Text Readability */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                                {/* Lower Third Gradient overlay specifically for text readability */}
+                                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0B2C5A]/90 via-[#0B2C5A]/40 to-transparent"></div>
 
-                                {/* Category Text */}
+                                {/* Category Title */}
                                 <span className="relative z-10 text-white font-bold text-base md:text-lg tracking-tight leading-tight group-hover:-translate-y-1 transition-transform duration-300">
                                     {categoryName}
                                 </span>
