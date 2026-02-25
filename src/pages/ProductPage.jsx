@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, ShoppingCart, Star, Truck, ShieldCheck, RotateCcw } from 'lucide-react';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
+import Navbar from "./Navbar.jsx";
 
 export default function ProductPage() {
     const { id } = useParams();
@@ -91,7 +92,7 @@ export default function ProductPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[#00A152] selection:text-white pb-20">
-
+            <Navbar />
             {/* Simple Clean Header to maintain context */}
             <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
