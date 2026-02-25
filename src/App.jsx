@@ -22,11 +22,7 @@ const App = () => {
 
     // Debounced search effect
     useEffect(() => {
-        if (!searchQuery.trim()) {
-            setSearchResults([]);
-            setIsSearchOpen(false);
-            return;
-        }
+        if (!searchQuery.trim()) return; // Exit early. The onChange handler manages the empty state.
 
         const delayDebounceFn = setTimeout(async () => {
             try {
@@ -41,8 +37,21 @@ const App = () => {
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery]);
 
-    // Dynamically extract unique categories from the database products
-    const uniqueCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+    // NEW: Extract unique categories AND grab the first available image for each category
+    // Extract unique categories AND grab the first available image
+    const categoryData = products.reduce((acc, product) => {
+        if (product.category) {
+            // If category doesn't exist yet, add it (with image or null)
+            if (acc[product.category] === undefined) {
+                acc[product.category] = product.imageUrl || null;
+            }
+            // If it exists but has no image, and the current product DOES have an image, update it
+            else if (acc[product.category] === null && product.imageUrl) {
+                acc[product.category] = product.imageUrl;
+            }
+        }
+        return acc;
+    }, {});
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[#00A152] selection:text-white">
@@ -132,38 +141,53 @@ const App = () => {
                 </nav>
             </header>
 
-            {/* Premium Hero Section */}
-            <section className="relative w-full py-24 md:py-32 flex items-center justify-center text-center px-4 overflow-hidden bg-gradient-to-br from-[#0B2C5A]/5 via-white to-[#00A152]/5">
+            {/* MODIFIED: Slimmer Hero Section so Categories appear Above the Fold */}
+            <section className="relative w-full py-12 md:py-16 flex items-center justify-center text-center px-4 overflow-hidden bg-gradient-to-br from-[#0B2C5A]/5 via-white to-[#00A152]/5 border-b border-slate-200/50">
                 <div className="relative z-20 max-w-4xl mx-auto flex flex-col items-center">
-                    <h1 className="text-4xl md:text-6xl font-black mb-6 leading-[1.1] tracking-tight text-[#0B2C5A]">
+                    <h1 className="text-3xl md:text-5xl font-black mb-4 leading-[1.1] tracking-tight text-[#0B2C5A]">
                         Advanced care.<br/>Simplified for you.
                     </h1>
-                    <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl font-medium leading-relaxed">
+                    <p className="text-base md:text-lg text-slate-600 mb-6 max-w-2xl font-medium leading-relaxed">
                         Experience the next generation of premium medical equipment, curated for reliability and delivered directly to your home.
                     </p>
-                    <Link to="/shop" className="flex items-center gap-2 bg-[#0B2C5A] text-white px-8 py-4 rounded-full font-bold hover:bg-[#082042] hover:shadow-lg hover:shadow-[#0B2C5A]/20 hover:-translate-y-0.5 transition-all duration-300">
-                        Explore Equipment <ArrowRight className="w-5 h-5" />
+                    <Link to="/shop" className="flex items-center gap-2 bg-[#0B2C5A] text-white px-6 py-3 rounded-full font-bold hover:bg-[#082042] hover:shadow-lg hover:shadow-[#0B2C5A]/20 hover:-translate-y-0.5 transition-all duration-300 text-sm">
+                        Explore Equipment <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
             </section>
 
-            {/* NEW: Shop by Category Section */}
-            {uniqueCategories.length > 0 && (
-                <section className="max-w-7xl mx-auto px-6 pt-20 pb-10">
-                    <h2 className="text-2xl font-black tracking-tight text-[#0B2C5A] mb-8">Shop by Category</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {uniqueCategories.map((category, idx) => (
+            {/* MODIFIED: Shop by Category Section with Dynamic Product Images */}
+            {Object.keys(categoryData).length > 0 && (
+                <section className="max-w-7xl mx-auto px-6 pt-12 pb-8">
+                    <h2 className="text-xl md:text-2xl font-black tracking-tight text-[#0B2C5A] mb-6">Shop by Category</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                        {Object.entries(categoryData).map(([categoryName, imageUrl], idx) => (
                             <Link
                                 to="/shop"
                                 key={idx}
-                                className="group relative h-40 md:h-48 rounded-2xl overflow-hidden bg-slate-900 flex items-end p-6 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300"
+                                className="group relative h-32 md:h-40 rounded-2xl overflow-hidden bg-white flex items-end p-5 cursor-pointer shadow-sm hover:shadow-xl border border-slate-100 transition-all duration-300"
                             >
-                                {/* Dark abstract gradient background for categories */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#0B2C5A] to-slate-900 opacity-90 group-hover:scale-105 transition-transform duration-500"></div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                                {/* Image Layer */}
+                                {imageUrl ? (
+                                    <div className="absolute inset-0 p-4">
+                                        <img
+                                            src={imageUrl}
+                                            alt={categoryName}
+                                            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                                        <span className="text-slate-300 text-xs font-mono">no_img</span>
+                                    </div>
+                                )}
 
-                                <span className="relative z-10 text-white font-bold text-lg md:text-xl tracking-tight leading-tight group-hover:-translate-y-1 transition-transform duration-300">
-                                    {category}
+                                {/* Gradient Overlay for Text Readability */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+
+                                {/* Category Text */}
+                                <span className="relative z-10 text-white font-bold text-base md:text-lg tracking-tight leading-tight group-hover:-translate-y-1 transition-transform duration-300">
+                                    {categoryName}
                                 </span>
                             </Link>
                         ))}
@@ -184,7 +208,7 @@ const App = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                        {products.slice(0, 8).map((product) => { // Sliced to 8 to match the "Featured" vibe of the homepage
+                        {products.slice(0, 8).map((product) => {
                             const cartItem = cartItems.find(item => item.product.id === product.id);
 
                             return (
@@ -252,7 +276,7 @@ const App = () => {
                 )}
             </section>
 
-            {/* NEW: Promotional Banner matches the second screenshot layout */}
+            {/* Promotional Banner */}
             <section className="max-w-7xl mx-auto px-6 py-12">
                 <div className="bg-gradient-to-r from-[#0B2C5A] to-[#124285] rounded-3xl p-12 md:p-20 text-center text-white shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
