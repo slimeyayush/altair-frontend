@@ -14,13 +14,14 @@ export default function CartPage() {
     const [address, setAddress] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const navigate = useNavigate();
-
-    // Auto-fill email if Firebase user is logged in
+// Add this at the top of your CartPage component
     useEffect(() => {
-        if (user) {
-            setEmail(user.email || user.phoneNumber || '');
+        if (user && (user.email || user.phoneNumber)) {
+            setEmail(user.email || user.phoneNumber);
         }
     }, [user]);
+
+
 
     const subtotal = cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0);
     const shipping = subtotal > 0 ? 500 : 0;
@@ -170,19 +171,24 @@ export default function CartPage() {
                             </div>
 
                             {/* Show manual email field ONLY if not logged in via Firebase */}
-                            {!user && (
-                                <div className="mb-4">
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Email Address *</label>
-                                    <input
-                                        type="email"
-                                        required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="contact@example.com"
-                                        className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl py-3 px-4 focus:outline-none focus:border-[#0B2C5A] focus:ring-4 focus:ring-[#0B2C5A]/5 transition-all text-sm"
-                                    />
-                                </div>
-                            )}
+                            <div className="mb-4">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+                                    Contact Information *
+                                </label>
+                                <input
+                                    type="text" // Changed to text to support phone numbers too
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="email or phone number"
+                                    className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl py-3 px-4 focus:outline-none focus:border-[#0B2C5A] focus:ring-4 focus:ring-[#0B2C5A]/5 transition-all text-sm"
+                                />
+                                {user && (
+                                    <p className="text-[10px] text-slate-400 mt-1 font-medium italic">
+                                        [ prefilled from your logged-in account ]
+                                    </p>
+                                )}
+                            </div>
 
                             <div className="mb-6">
                                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Shipping Address *</label>
