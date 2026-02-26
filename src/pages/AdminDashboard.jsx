@@ -236,7 +236,8 @@ export default function AdminDashboard() {
                             <thead className="bg-zinc-950 text-zinc-400 font-mono uppercase text-xs">
                             <tr>
                                 <th className="p-4 border-b border-zinc-900">ID</th>
-                                <th className="p-4 border-b border-zinc-900">Email</th>
+                                <th className="p-4 border-b border-zinc-900">Contact</th>
+                                <th className="p-4 border-b border-zinc-900">Address</th>
                                 <th className="p-4 border-b border-zinc-900">Total (₹)</th>
                                 <th className="p-4 border-b border-zinc-900">Status</th>
                                 <th className="p-4 border-b border-zinc-900">Action</th>
@@ -246,8 +247,13 @@ export default function AdminDashboard() {
                             {orders.map(order => (
                                 <tr key={order.id} className="hover:bg-zinc-900/50">
                                     <td className="p-4 font-mono">#{order.id}</td>
-                                    <td className="p-4">{order.customerEmail}</td>
-                                    <td className="p-4 font-bold">{order.totalAmount}</td>
+                                    <td className="p-4 text-zinc-300">{order.customerEmail}</td>
+                                    <td className="p-4">
+                                        <div className="whitespace-normal max-w-[250px] text-xs text-zinc-400 leading-relaxed" title={order.shippingAddress}>
+                                            {order.shippingAddress || '-'}
+                                        </div>
+                                    </td>
+                                    <td className="p-4 font-bold text-white">{order.totalAmount}</td>
                                     <td className="p-4">
                                       <span className={`px-2 py-1 text-xs font-bold rounded uppercase tracking-widest ${order.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-green-500/10 text-green-500'}`}>
                                         {order.status}
@@ -255,9 +261,9 @@ export default function AdminDashboard() {
                                     </td>
                                     <td className="p-4 flex gap-2">
                                         {order.status === 'PENDING' ? (
-                                            <button onClick={() => handleMarkPaid(order.id)} className="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-500">Mark Paid</button>
+                                            <button onClick={() => handleMarkPaid(order.id)} className="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-500 transition-colors">Mark Paid</button>
                                         ) : (
-                                            <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="bg-zinc-950 border border-zinc-800 text-white text-xs rounded p-1">
+                                            <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="bg-zinc-950 border border-zinc-800 text-white text-xs rounded p-1 focus:outline-none focus:border-zinc-500">
                                                 <option value="PAID">PAID</option>
                                                 <option value="SHIPPED">SHIPPED</option>
                                                 <option value="DELIVERED">DELIVERED</option>
