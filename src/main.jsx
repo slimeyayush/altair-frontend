@@ -11,10 +11,12 @@ import './index.css';
 import RentCpapPage from "./pages/RentCpapPage.jsx";
 import PlaceholderPage from "./pages/PlaceholderPage.jsx";
 import ShopPage from "./pages/ShopPage.jsx";
+import {AuthProvider} from "./context/AuthContext.jsx";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <BrowserRouter>
+            <AuthProvider>
             <CartProvider>
                 <Routes>
                     <Route path="/" element={<App />} />
@@ -27,7 +29,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                     <Route path="/contact" element={<PlaceholderPage title="contact" />} />
                     <Route path="/shop" element={<ShopPage />} />{/* MUST BE HERE */}
                 </Routes>
+
             </CartProvider>
+            </AuthProvider>
         </BrowserRouter>
     </React.StrictMode>
 );

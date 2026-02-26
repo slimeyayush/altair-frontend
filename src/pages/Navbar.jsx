@@ -3,12 +3,16 @@ import { Search, ShoppingCart, User, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
+import LoginModal from "./LoginModal.jsx";
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Navbar() {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const { cartItems } = useCart();
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const { user, logout, loading } = useAuth(); // Destructured loading
 
     const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
@@ -31,25 +35,17 @@ export default function Navbar() {
 
     return (
         <header className="bg-white border-b border-slate-100 sticky top-0 z-50 transition-all duration-300">
-            {/* Changed to max-w-5xl to pull everything toward the center.
-              Using justify-between keeps the left and right groups neatly separated
-              but confined to this narrower central column.
-            */}
             <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between gap-4">
 
                 {/* LEFT SIDE: Logo & Navigation */}
                 <div className="flex items-center gap-8 md:gap-12">
-                    {/* Mobile Menu Icon */}
                     <Menu className="md:hidden text-slate-600 cursor-pointer hover:text-[#0B2C5A]" />
-
-                    {/* Logo */}
                     <Link to="/" className="flex items-center shrink-0">
                         <span className="text-2xl font-black tracking-tighter text-[#0B2C5A]">
                             ALTAIR<span className="text-[#00A152]">.</span>
                         </span>
                     </Link>
 
-                    {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-7 text-[15px] font-bold text-[#0B2C5A]/80">
                         <Link to="/shop" className="hover:text-[#0B2C5A] transition-colors">Shop</Link>
                         <Link to="/rent-cpap" className="hover:text-[#0B2C5A] transition-colors">Rent CPAP</Link>
@@ -64,7 +60,6 @@ export default function Navbar() {
                     {/* Search Bar */}
                     <div className="hidden md:block relative group w-[260px] lg:w-[320px] z-50">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-hover:text-[#0B2C5A] peer-focus:text-[#0B2C5A] transition-colors z-10" />
-
                         <input
                             type="text"
                             value={searchQuery}
@@ -82,9 +77,8 @@ export default function Navbar() {
                             className="w-full peer bg-slate-50 border border-slate-200 text-slate-900 rounded-full py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:bg-white focus:border-[#0B2C5A] focus:ring-4 focus:ring-[#0B2C5A]/5 transition-all"
                         />
 
-                        {/* Search Dropdown */}
                         {isSearchOpen && (
-                            <div className="absolute top-[calc(100%+8px)] right-0 w-[400px] bg-white border border-slate-100 rounded-2xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            <div className="absolute top-[calc(100%+8px)] right-0 w-[400px] bg-white border border-slate-100 rounded-2xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto">
                                 {searchResults.length > 0 ? (
                                     searchResults.map(item => (
                                         <Link
@@ -94,9 +88,9 @@ export default function Navbar() {
                                                 setIsSearchOpen(false);
                                                 setSearchQuery('');
                                             }}
-                                            className="flex items-center gap-4 p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer"
+                                            className="flex items-center gap-4 p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors"
                                         >
-                                            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-2 shrink-0 border border-slate-100 shadow-sm">
+                                            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-2 shrink-0 border border-slate-100">
                                                 {item.imageUrl ? (
                                                     <img src={item.imageUrl} alt={item.name} className="object-contain w-full h-full" />
                                                 ) : (
@@ -110,19 +104,36 @@ export default function Navbar() {
                                         </Link>
                                     ))
                                 ) : (
-                                    <div className="p-8 text-center text-slate-500 text-sm font-medium">
-                                        No products found.
-                                    </div>
+                                    <div className="p-8 text-center text-slate-500 text-sm font-medium">No products found.</div>
                                 )}
                             </div>
                         )}
                     </div>
 
-                    {/* Icons */}
+                    {/* Icons Section */}
                     <div className="flex items-center gap-4 shrink-0">
-                        <Link to="/admin/login" className="text-[#0B2C5A]/80 hover:text-[#0B2C5A] transition-colors p-1">
-                            <User className="w-5 h-5" />
-                        </Link>
+                        {loading ? (
+                            /* Simple spinner while Firebase checks auth state */
+                            <div className="w-5 h-5 border-2 border-slate-200 border-t-[#0B2C5A] rounded-full animate-spin" />
+                        ) : user ? (
+                            <div className="relative group py-2">
+                                <button className="flex items-center justify-center w-8 h-8 rounded-full bg-[#0B2C5A] text-white font-bold text-sm shadow-sm hover:scale-105 transition-transform">
+                                    {user.email ? user.email.charAt(0).toUpperCase() : 'P'}
+                                </button>
+                                <div className="absolute right-0 top-full w-32 bg-white border border-slate-100 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden">
+                                    <button
+                                        onClick={logout}
+                                        className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 font-bold transition-colors"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button onClick={() => setIsLoginModalOpen(true)} className="text-[#0B2C5A]/80 hover:text-[#0B2C5A] transition-colors p-1">
+                                <User className="w-5 h-5" />
+                            </button>
+                        )}
 
                         <Link to="/cart" className="relative cursor-pointer group flex items-center p-1">
                             <ShoppingCart className="w-5 h-5 text-[#0B2C5A]/80 group-hover:text-[#0B2C5A] transition-colors" />
@@ -135,6 +146,8 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
+
+            <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
         </header>
     );
 }
