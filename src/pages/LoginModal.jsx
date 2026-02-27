@@ -34,7 +34,7 @@ export default function LoginModal({ isOpen, onClose }) {
             const token = await result.user.getIdToken();
 
             // Temporary log to prove it works. We will send this to Java later.
-            console.log("Google Token:", token);
+
             onClose();
         } catch (err) {
             setError(err.message);
