@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../context/CartContext'; // Adjust path if needed. Assuming you export useAuth from AuthContext.
+import { useAuth } from '../context/AuthContext'; // Adjust path if needed. Assuming you export useAuth from AuthContext.
 import Navbar from "./Navbar.jsx";
 import { User, MapPin, Package, LogOut, ExternalLink } from 'lucide-react';
 import { Navigate, Link } from 'react-router-dom';
