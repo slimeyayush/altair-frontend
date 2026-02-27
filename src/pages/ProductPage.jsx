@@ -82,7 +82,6 @@ export default function ProductPage() {
     }
 
     const cartItem = cartItems.find(item => item.product.id === product.id);
-    const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     // Description Truncation Logic
     const needsTruncation = product.description && product.description.length > MAX_DESC_LENGTH;
@@ -92,27 +91,8 @@ export default function ProductPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[#00A152] selection:text-white pb-20">
+
             <Navbar />
-            {/* Simple Clean Header to maintain context */}
-            <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <Link to="/" className="flex items-center">
-                        <span className="text-2xl font-black tracking-tighter text-[#0B2C5A]">
-                            ALTAIR<span className="text-[#00A152]">.</span>
-                        </span>
-                    </Link>
-                    <Link to="/cart" className="relative cursor-pointer group flex items-center">
-                        <div className="p-2 bg-slate-100 rounded-full group-hover:bg-[#0B2C5A] transition-colors duration-300">
-                            <ShoppingCart className="w-5 h-5 text-slate-700 group-hover:text-white transition-colors" />
-                        </div>
-                        {totalCartItems > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-[#00A152] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm">
-                                {totalCartItems}
-                            </span>
-                        )}
-                    </Link>
-                </div>
-            </header>
 
             <div className="max-w-7xl mx-auto px-6 pt-8">
 
@@ -230,7 +210,6 @@ export default function ProductPage() {
                     </div>
                 </div>
 
-                {/* Related Products Section (Matches the new App.jsx card styles) */}
                 {/* Related Products Section (Grid format) */}
                 {relatedProducts.length > 0 && (
                     <div className="border-t border-slate-200 pt-16 pb-12">
