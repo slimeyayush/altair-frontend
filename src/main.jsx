@@ -13,6 +13,8 @@ import PlaceholderPage from "./pages/PlaceholderPage.jsx";
 import ShopPage from "./pages/ShopPage.jsx";
 import {AuthProvider} from "./context/AuthContext.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import AboutPage from "./pages/AboutUs.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
@@ -29,7 +31,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                     <Route path="/about" element={<PlaceholderPage title="about us" />} />
                     <Route path="/contact" element={<PlaceholderPage title="contact" />} />
                     <Route path="/shop" element={<ShopPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />{/* MUST BE HERE */}
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/contact" element={<ContactPage />} />{/* MUST BE HERE */}
                 </Routes>
 
             </CartProvider>
