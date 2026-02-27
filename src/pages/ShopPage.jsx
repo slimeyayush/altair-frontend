@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ShoppingCart, Plus, Minus, Eye, Star, Heart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import Navbar from "./Navbar.jsx"; // Ensure correct path
 
@@ -10,6 +10,10 @@ export default function ShopPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const { cartItems, addToCart, updateQuantity } = useCart();
+
+    // NEW: Get the category from the URL (e.g., ?category=Mobility Aids)
+    const [searchParams] = useSearchParams();
+    const selectedCategory = searchParams.get('category');
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -27,8 +31,13 @@ export default function ShopPage() {
         fetchProducts();
     }, []);
 
-    // Group products by category
-    const groupedProducts = products.reduce((acc, product) => {
+    // NEW: Filter products if a category is selected in the URL
+    const filteredProducts = selectedCategory
+        ? products.filter(product => product.category === selectedCategory)
+        : products;
+
+    // Group the FILTERED products by category
+    const groupedProducts = filteredProducts.reduce((acc, product) => {
         const category = product.category || 'Other';
         if (!acc[category]) {
             acc[category] = [];
@@ -63,13 +72,26 @@ export default function ShopPage() {
                 {/* Page Header matching mockup */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-slate-100 pb-6">
                     <div>
-                        <h1 className="text-3xl font-black tracking-tight text-slate-900 mb-2">
-                            All Products
-                        </h1>
+                        {/* NEW: Dynamic Header based on selected category */}
+                        {selectedCategory ? (
+                            <>
+                                <Link to="/shop" className="text-blue-600 text-sm font-bold hover:underline mb-3 inline-block">
+                                    &larr; Back to all products
+                                </Link>
+                                <h1 className="text-3xl font-black tracking-tight text-slate-900 mb-2">
+                                    {selectedCategory}
+                                </h1>
+                            </>
+                        ) : (
+                            <h1 className="text-3xl font-black tracking-tight text-slate-900 mb-2">
+                                All Products
+                            </h1>
+                        )}
                         <p className="text-sm text-slate-500">
-                            Showing {products.length} products across our catalog
+                            Showing {filteredProducts.length} products {selectedCategory ? 'in this category' : 'across our catalog'}
                         </p>
                     </div>
+
                     <div className="mt-4 md:mt-0 flex items-center gap-2 text-sm text-slate-600">
                         <span className="font-medium">Sort by:</span>
                         <select className="bg-slate-50 border border-slate-200 rounded-md py-1.5 px-3 focus:outline-none focus:border-blue-600">
@@ -81,17 +103,21 @@ export default function ShopPage() {
                 </div>
 
                 {Object.keys(groupedProducts).length === 0 ? (
-                    <div className="text-slate-500 font-mono text-sm py-8 text-center bg-slate-50 rounded-xl">No products available at the moment.</div>
+                    <div className="text-slate-500 font-mono text-sm py-8 text-center bg-slate-50 rounded-xl">
+                        {selectedCategory ? `No products found in ${selectedCategory}.` : 'No products available at the moment.'}
+                    </div>
                 ) : (
                     Object.entries(groupedProducts).map(([category, items]) => (
                         <div key={category} className="mb-16">
 
-                            {/* Category Header */}
-                            <div className="flex items-center gap-4 mb-8">
-                                <h2 className="text-xl font-bold tracking-tight text-slate-900">{category}</h2>
-                                <div className="h-[1px] bg-slate-100 flex-grow mt-1"></div>
-                                <span className="text-slate-400 text-xs font-medium bg-slate-50 px-3 py-1 rounded-full">{items.length} items</span>
-                            </div>
+                            {/* Category Header (Only show if viewing All Products, hide if already filtered) */}
+                            {!selectedCategory && (
+                                <div className="flex items-center gap-4 mb-8">
+                                    <h2 className="text-xl font-bold tracking-tight text-slate-900">{category}</h2>
+                                    <div className="h-[1px] bg-slate-100 flex-grow mt-1"></div>
+                                    <span className="text-slate-400 text-xs font-medium bg-slate-50 px-3 py-1 rounded-full">{items.length} items</span>
+                                </div>
+                            )}
 
                             {/* Product Grid */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
