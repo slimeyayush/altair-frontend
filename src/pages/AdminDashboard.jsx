@@ -19,6 +19,9 @@ export default function AdminDashboard() {
     const [orderSearchTerm, setOrderSearchTerm] = useState('');
     const [orderStatusFilter, setOrderStatusFilter] = useState('ALL');
 
+    // NEW: State for the Order Details Modal
+    const [viewingOrder, setViewingOrder] = useState(null);
+
     const token = localStorage.getItem('adminToken');
     const axiosConfig = { headers: { 'Authorization': `Bearer ${token}` } };
 
@@ -172,7 +175,6 @@ export default function AdminDashboard() {
 
     // --- FILTER LOGIC FOR ORDERS ---
     const filteredOrders = orders.filter(order => {
-        // Checks the customerEmail field (which holds either email or phone number)
         const matchesSearch = order.customerEmail?.toLowerCase().includes(orderSearchTerm.toLowerCase());
         const matchesStatus = orderStatusFilter === 'ALL' || order.status === orderStatusFilter;
         return matchesSearch && matchesStatus;
@@ -248,7 +250,7 @@ export default function AdminDashboard() {
                                 <tr>
                                     <th className="p-4 border-b border-zinc-900">ID</th>
                                     <th className="p-4 border-b border-zinc-900">Contact</th>
-                                    <th className="p-4 border-b border-zinc-900">Address</th>
+                                    {/* ADDRESS REMOVED FROM MAIN TABLE */}
                                     <th className="p-4 border-b border-zinc-900">Total (₹)</th>
                                     <th className="p-4 border-b border-zinc-900">Status</th>
                                     <th className="p-4 border-b border-zinc-900 text-right">Action</th>
@@ -256,18 +258,13 @@ export default function AdminDashboard() {
                                 </thead>
                                 <tbody className="divide-y divide-zinc-900">
                                 {filteredOrders.length === 0 ? (
-                                    <tr><td colSpan="6" className="p-8 text-center text-zinc-500 font-mono">No orders found matching criteria.</td></tr>
+                                    <tr><td colSpan="5" className="p-8 text-center text-zinc-500 font-mono">No orders found matching criteria.</td></tr>
                                 ) : (
                                     filteredOrders.map(order => (
                                         <tr key={order.id} className={`hover:bg-zinc-900/50 transition-colors ${order.status === 'CANCELLED' ? 'opacity-50' : ''}`}>
-                                            <td className="p-4 font-mono">#{order.id}</td>
-                                            <td className="p-4 text-zinc-300">{order.customerEmail}</td>
-                                            <td className="p-4">
-                                                <div className="whitespace-normal max-w-[200px] text-xs text-zinc-400 leading-relaxed" title={order.shippingAddress}>
-                                                    {order.shippingAddress || '-'}
-                                                </div>
-                                            </td>
-                                            <td className="p-4 font-bold text-white">{order.totalAmount}</td>
+                                            <td className="p-4 font-mono text-zinc-400">#{order.id}</td>
+                                            <td className="p-4 font-medium text-white">{order.customerEmail}</td>
+                                            <td className="p-4 font-bold text-white">₹{order.totalAmount?.toLocaleString('en-IN')}</td>
                                             <td className="p-4">
                                                 <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-widest 
                                                     ${order.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' :
@@ -278,29 +275,39 @@ export default function AdminDashboard() {
                                                 </span>
                                             </td>
                                             <td className="p-4 text-right">
-                                                {order.status === 'CANCELLED' ? (
-                                                    <span className="text-xs text-zinc-600 font-bold uppercase">Cancelled</span>
-                                                ) : (
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        {order.status === 'PENDING' ? (
-                                                            <button onClick={() => handleMarkPaid(order.id)} className="bg-green-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-green-500 transition-colors">Mark Paid</button>
-                                                        ) : (
-                                                            <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="bg-zinc-950 border border-zinc-800 text-white text-xs rounded py-1.5 px-2 focus:outline-none focus:border-zinc-500">
-                                                                <option value="PAID">PAID</option>
-                                                                <option value="SHIPPED">SHIPPED</option>
-                                                                <option value="DELIVERED">DELIVERED</option>
-                                                            </select>
-                                                        )}
-                                                        {/* CANCEL BUTTON */}
-                                                        <button
-                                                            onClick={() => handleCancelOrder(order.id)}
-                                                            className="p-1.5 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors"
-                                                            title="Cancel Order & Restock"
-                                                        >
-                                                            <XCircle className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                )}
+                                                <div className="flex items-center justify-end gap-2">
+                                                    {/* NEW: View Details Button */}
+                                                    <button
+                                                        onClick={() => setViewingOrder(order)}
+                                                        className="p-1.5 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 rounded transition-colors"
+                                                        title="View Order Details"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                    </button>
+
+                                                    {order.status === 'CANCELLED' ? (
+                                                        <span className="text-xs text-zinc-600 font-bold uppercase ml-2">Cancelled</span>
+                                                    ) : (
+                                                        <>
+                                                            {order.status === 'PENDING' ? (
+                                                                <button onClick={() => handleMarkPaid(order.id)} className="bg-green-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-green-500 transition-colors">Mark Paid</button>
+                                                            ) : (
+                                                                <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="bg-zinc-950 border border-zinc-800 text-white text-xs rounded py-1.5 px-2 focus:outline-none focus:border-zinc-500">
+                                                                    <option value="PAID">PAID</option>
+                                                                    <option value="SHIPPED">SHIPPED</option>
+                                                                    <option value="DELIVERED">DELIVERED</option>
+                                                                </select>
+                                                            )}
+                                                            <button
+                                                                onClick={() => handleCancelOrder(order.id)}
+                                                                className="p-1.5 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors"
+                                                                title="Cancel Order & Restock"
+                                                            >
+                                                                <XCircle className="w-4 h-4" />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
@@ -402,50 +409,86 @@ export default function AdminDashboard() {
                         </button>
                     </form>
                 )}
+            </main>
 
-                {/* Admin Management Tab */}
-                {activeTab === 'add-admin' && (
-                    <div className="max-w-2xl space-y-8">
-                        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
-                            <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-800 pb-4">Current Administrators</h2>
-                            {admins.length === 0 ? (
-                                <p className="text-sm text-zinc-500 font-mono">[ no admins loaded ]</p>
-                            ) : (
-                                <ul className="space-y-3">
-                                    {admins.map((admin) => (
-                                        <li key={admin.id} className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-lg group">
-                                            <div className="flex items-center gap-4">
-                                                <span className="font-bold text-white">{admin.username}</span>
-                                                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest bg-zinc-900 px-2 py-1 rounded">Active</span>
-                                            </div>
-                                            <button onClick={() => handleDeleteAdmin(admin.id, admin.username)} className="p-2 text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all" title="Delete Admin">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+            {/* View Order Modal Overlay (NEW) */}
+            {viewingOrder && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
+
+                        {/* Header */}
+                        <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 rounded-t-2xl">
+                            <div>
+                                <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-3">
+                                    ORDER #{viewingOrder.id}
+                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest 
+                                        ${viewingOrder.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' :
+                                        viewingOrder.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500' :
+                                            'bg-green-500/10 text-green-500'}`}
+                                    >
+                                        {viewingOrder.status}
+                                    </span>
+                                </h2>
+                            </div>
+                            <button onClick={() => setViewingOrder(null)} className="text-zinc-500 hover:text-white hover:bg-zinc-800 p-2 rounded-lg transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
                         </div>
 
-                        <form onSubmit={handleAddAdmin} className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
-                            <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-800 pb-4">Register New Admin</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Username *</label>
-                                    <input required type="text" name="username" value={newAdmin.username} onChange={handleAdminInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Password *</label>
-                                    <input required type="password" name="password" value={newAdmin.password} onChange={handleAdminInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                        {/* Scrollable Content */}
+                        <div className="p-6 overflow-y-auto space-y-6">
+
+                            {/* Customer Info */}
+                            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Customer Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                    <div>
+                                        <span className="block text-zinc-500 mb-1">Email / Phone</span>
+                                        <span className="text-white font-medium">{viewingOrder.customerEmail}</span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-zinc-500 mb-1">Shipping Address</span>
+                                        <span className="text-white font-medium leading-relaxed whitespace-pre-wrap">
+                                            {viewingOrder.shippingAddress || 'No address provided'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            <button type="submit" className="mt-8 w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
-                                Register Admin
-                            </button>
-                        </form>
+
+                            {/* Products List */}
+                            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Products Ordered</h3>
+                                {viewingOrder.items && viewingOrder.items.length > 0 ? (
+                                    <ul className="divide-y divide-zinc-800">
+                                        {viewingOrder.items.map((item, idx) => (
+                                            <li key={idx} className="py-4 flex justify-between items-center group">
+                                                <div className="flex flex-col">
+                                                    <span className="text-white font-bold mb-1">{item.product?.name || 'Unknown Product'}</span>
+                                                    <span className="text-xs font-mono text-zinc-400">
+                                                        Qty: {item.quantity}  ×  ₹{item.price?.toLocaleString('en-IN')}
+                                                    </span>
+                                                </div>
+                                                <span className="text-white font-black text-right">
+                                                    ₹{(item.quantity * item.price).toLocaleString('en-IN')}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-zinc-500 text-sm py-4 italic">No items found for this order.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Sticky Footer Total */}
+                        <div className="p-6 bg-zinc-900/80 border-t border-zinc-800 rounded-b-2xl flex justify-between items-center">
+                            <span className="text-zinc-400 font-bold uppercase tracking-widest text-sm">Total Amount</span>
+                            <span className="text-2xl font-black text-white">₹{viewingOrder.totalAmount?.toLocaleString('en-IN')}</span>
+                        </div>
+
                     </div>
-                )}
-            </main>
+                </div>
+            )}
 
             {/* Edit Product Modal Overlay */}
             {editingProduct && (
