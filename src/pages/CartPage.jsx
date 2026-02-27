@@ -15,9 +15,15 @@ export default function CartPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const navigate = useNavigate();
 // Add this at the top of your CartPage component
+    // In CartPage.jsx
     useEffect(() => {
-        if (user && (user.email || user.phoneNumber)) {
-            setEmail(user.email || user.phoneNumber);
+        if (user) {
+            setEmail(user.email || user.phoneNumber || '');
+            // Auto-fill their saved address if they have one
+            const savedAddress = localStorage.getItem(`address_${user.uid}`);
+            if (savedAddress) {
+                setAddress(savedAddress);
+            }
         }
     }, [user]);
 
