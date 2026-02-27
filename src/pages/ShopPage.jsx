@@ -11,8 +11,8 @@ export default function ShopPage() {
     const [error, setError] = useState(null);
     const { cartItems, addToCart, updateQuantity } = useCart();
 
-    // NEW: Get the category from the URL (e.g., ?category=Mobility Aids)
-    const [searchParams] = useSearchParams();
+    // GET and SET search params from URL
+    const [searchParams, setSearchParams] = useSearchParams();
     const selectedCategory = searchParams.get('category');
 
     useEffect(() => {
@@ -31,7 +31,20 @@ export default function ShopPage() {
         fetchProducts();
     }, []);
 
-    // NEW: Filter products if a category is selected in the URL
+    // Extract unique categories for the dropdown
+    const allCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+
+    // Handle dropdown selection
+    const handleCategoryChange = (e) => {
+        const newCategory = e.target.value;
+        if (newCategory === 'all') {
+            setSearchParams({}); // Clear query parameter to show all
+        } else {
+            setSearchParams({ category: newCategory });
+        }
+    };
+
+    // Filter products if a category is selected in the URL
     const filteredProducts = selectedCategory
         ? products.filter(product => product.category === selectedCategory)
         : products;
@@ -69,10 +82,9 @@ export default function ShopPage() {
 
             <div className="max-w-7xl mx-auto px-6 py-10">
 
-                {/* Page Header matching mockup */}
+                {/* Page Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-slate-100 pb-6">
                     <div>
-                        {/* NEW: Dynamic Header based on selected category */}
                         {selectedCategory ? (
                             <>
                                 <Link to="/shop" className="text-blue-600 text-sm font-bold hover:underline mb-3 inline-block">
@@ -92,12 +104,18 @@ export default function ShopPage() {
                         </p>
                     </div>
 
+                    {/* NEW: Dynamic Category Selector */}
                     <div className="mt-4 md:mt-0 flex items-center gap-2 text-sm text-slate-600">
-                        <span className="font-medium">Sort by:</span>
-                        <select className="bg-slate-50 border border-slate-200 rounded-md py-1.5 px-3 focus:outline-none focus:border-blue-600">
-                            <option>Relevance</option>
-                            <option>Price: Low to High</option>
-                            <option>Price: High to Low</option>
+                        <span className="font-medium">Category:</span>
+                        <select
+                            value={selectedCategory || 'all'}
+                            onChange={handleCategoryChange}
+                            className="bg-slate-50 border border-slate-200 rounded-md py-1.5 px-3 focus:outline-none focus:border-blue-600 max-w-[200px] truncate"
+                        >
+                            <option value="all">All Products</option>
+                            {allCategories.map((cat, idx) => (
+                                <option key={idx} value={cat}>{cat}</option>
+                            ))}
                         </select>
                     </div>
                 </div>
@@ -110,7 +128,7 @@ export default function ShopPage() {
                     Object.entries(groupedProducts).map(([category, items]) => (
                         <div key={category} className="mb-16">
 
-                            {/* Category Header (Only show if viewing All Products, hide if already filtered) */}
+                            {/* Category Header (Only show if viewing All Products) */}
                             {!selectedCategory && (
                                 <div className="flex items-center gap-4 mb-8">
                                     <h2 className="text-xl font-bold tracking-tight text-slate-900">{category}</h2>
@@ -123,8 +141,6 @@ export default function ShopPage() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {items.map((product) => {
                                     const cartItem = cartItems.find(item => item.product.id === product.id);
-
-                                    // Determine tag color based on text (matches mockup red/blue tags)
                                     const isSale = product.tag?.toLowerCase().includes('sale');
 
                                     return (
@@ -132,20 +148,16 @@ export default function ShopPage() {
 
                                             {/* Image Section */}
                                             <div className="relative aspect-square bg-[#F8F9FB] flex items-center justify-center p-6 overflow-hidden">
-
-                                                {/* Top Left Badge */}
                                                 {product.tag && (
                                                     <span className={`absolute top-3 left-3 z-10 text-white text-[9px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-sm shadow-sm ${isSale ? 'bg-red-500' : 'bg-blue-600'}`}>
                                                         {product.tag}
                                                     </span>
                                                 )}
 
-                                                {/* Top Right Heart (Visual only as per mockup) */}
                                                 <button className="absolute top-3 right-3 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400 hover:text-red-500 hover:scale-110 transition-all">
                                                     <Heart className="w-4 h-4" />
                                                 </button>
 
-                                                {/* Clickable Image */}
                                                 <Link to={`/product/${product.id}`} className="w-full h-full flex items-center justify-center">
                                                     {product.imageUrl ? (
                                                         <img
@@ -161,20 +173,16 @@ export default function ShopPage() {
 
                                             {/* Details Section */}
                                             <div className="p-5 flex flex-col flex-grow bg-white">
-
-                                                {/* Visual Star Rating Layout */}
                                                 <div className="flex items-center gap-1 mb-2 text-yellow-400">
                                                     {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
                                                     <span className="text-[11px] text-slate-400 font-medium ml-1">({Math.floor(Math.random() * 200) + 42})</span>
                                                 </div>
 
-                                                {/* Title & Category */}
                                                 <Link to={`/product/${product.id}`} className="hover:text-blue-600 transition-colors">
                                                     <h3 className="font-bold text-slate-900 leading-snug mb-1 line-clamp-2 text-[15px]">{product.name}</h3>
                                                 </Link>
                                                 <p className="text-xs text-slate-500 mb-4">{product.category}</p>
 
-                                                {/* Price */}
                                                 <div className="mt-auto mb-5 flex items-baseline gap-2">
                                                     <div className="text-xl font-bold text-slate-900">
                                                         ₹{product.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -184,10 +192,7 @@ export default function ShopPage() {
                                                     )}
                                                 </div>
 
-                                                {/* Buttons Row */}
                                                 <div className="flex items-center gap-2">
-
-                                                    {/* Dynamic Cart Controls */}
                                                     {cartItem ? (
                                                         <div className="flex-1 flex items-center justify-between border-2 border-blue-600 rounded-md bg-blue-50 h-10 px-1">
                                                             <button onClick={() => updateQuantity(product.id, -1)} className="w-8 h-8 hover:bg-white text-blue-600 rounded flex items-center justify-center transition-colors shadow-sm">
@@ -209,7 +214,6 @@ export default function ShopPage() {
                                                         </button>
                                                     )}
 
-                                                    {/* View Item Button */}
                                                     <Link
                                                         to={`/product/${product.id}`}
                                                         className="w-10 h-10 flex shrink-0 items-center justify-center bg-slate-50 text-slate-500 rounded-md hover:text-blue-600 hover:bg-slate-100 transition-colors"

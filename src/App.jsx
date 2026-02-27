@@ -70,34 +70,45 @@ const App = () => {
                 </div>
             </section>
 
-            {/* Shop by Category Section (Dark Theme) */}
+            {/* Shop by Category Section (Light & Aesthetic Theme) */}
             {categoryData.length > 0 && (
-                <section className="w-full bg-[#030A14] py-16 px-6">
+                <section className="w-full bg-slate-50 py-16 px-6 border-b border-slate-100">
                     <div className="max-w-7xl mx-auto">
-                        <h2 className="text-2xl font-black tracking-tight text-white mb-8">Shop by Category</h2>
+                        <div className="flex justify-between items-end mb-8">
+                            <h2 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900">Shop by Category</h2>
+                        </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             {categoryData.slice(0, 4).map((category, idx) => (
                                 <Link
                                     to={`/shop?category=${encodeURIComponent(category.name)}`}
                                     key={idx}
-                                    className="group relative h-48 md:h-56 rounded-xl overflow-hidden bg-slate-800 flex items-end p-6 cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300"
+                                    className="group relative h-48 md:h-56 rounded-2xl overflow-hidden bg-white border border-slate-200 flex items-end p-6 cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                                 >
+                                    {/* Image Base */}
                                     {category.imageUrl ? (
                                         <img
                                             src={category.imageUrl}
                                             alt={category.name}
-                                            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
+                                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                         />
                                     ) : (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900 group-hover:scale-105 transition-transform duration-500"></div>
+                                        <div className="absolute inset-0 bg-slate-100 group-hover:scale-105 transition-transform duration-700"></div>
                                     )}
 
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                                    {/* Clean Gradient Overlay - Makes text pop without darkening the whole card */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-300"></div>
 
-                                    <span className="relative z-10 text-white font-bold text-lg md:text-xl tracking-tight leading-tight">
-                                        {category.name}
-                                        <span className="block text-xs font-normal text-slate-300 mt-1">Explore category</span>
-                                    </span>
+                                    {/* Category Text */}
+                                    <div className="relative z-10 w-full flex items-center justify-between">
+                                        <div>
+                                            <span className="block text-white font-bold text-lg md:text-xl tracking-tight leading-tight mb-1">
+                                                {category.name}
+                                            </span>
+                                            <span className="block text-xs font-medium text-blue-300 group-hover:text-white transition-colors">
+                                                Explore Collection &rarr;
+                                            </span>
+                                        </div>
+                                    </div>
                                 </Link>
                             ))}
                         </div>
