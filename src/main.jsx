@@ -28,8 +28,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/login" element={<AdminLogin />} />
                     <Route path="/rent-cpap" element={<RentCpapPage />} />
-                    <Route path="/about" element={<PlaceholderPage title="about us" />} />
-                    <Route path="/contact" element={<PlaceholderPage title="contact" />} />
+                    {/*<Route path="/about" element={<PlaceholderPage title="about us" />} />*/}
+                    {/*<Route path="/contact" element={<PlaceholderPage title="contact" />} />*/}
                     <Route path="/shop" element={<ShopPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/about" element={<AboutPage />} />
