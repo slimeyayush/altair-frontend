@@ -19,7 +19,7 @@ export default function AdminDashboard() {
     const [orderSearchTerm, setOrderSearchTerm] = useState('');
     const [orderStatusFilter, setOrderStatusFilter] = useState('ALL');
 
-    // NEW: State for the Order Details Modal
+    // State for the Order Details Modal
     const [viewingOrder, setViewingOrder] = useState(null);
 
     const token = localStorage.getItem('adminToken');
@@ -30,15 +30,10 @@ export default function AdminDashboard() {
     });
     const [editingProduct, setEditingProduct] = useState(null);
     const [newAdmin, setNewAdmin] = useState({ username: '', password: '' });
-
-    useEffect(() => {
-        if (!token) {
-            navigate('/admin/login');
-            return;
-        }
-        fetchData();
-    }, [activeTab, navigate, token]);
-
+    const handleLogout = () => {
+        localStorage.removeItem('adminToken');
+        navigate('/admin/login');
+    };
     const handleError = (error) => {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             alert("Session expired. Please log in again.");
@@ -47,12 +42,6 @@ export default function AdminDashboard() {
             console.error("API Error:", error);
         }
     };
-
-    const handleLogout = () => {
-        localStorage.removeItem('adminToken');
-        navigate('/admin/login');
-    };
-
     const fetchData = async () => {
         try {
             if (activeTab === 'orders') {
@@ -69,6 +58,20 @@ export default function AdminDashboard() {
             handleError(error);
         }
     };
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/login');
+            return;
+        }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchData();
+    }, [activeTab, navigate, token]);
+
+
+
+
+
+
 
     // --- ORDER ACTIONS ---
     const handleMarkPaid = async (orderId) => {
@@ -250,7 +253,6 @@ export default function AdminDashboard() {
                                 <tr>
                                     <th className="p-4 border-b border-zinc-900">ID</th>
                                     <th className="p-4 border-b border-zinc-900">Contact</th>
-                                    {/* ADDRESS REMOVED FROM MAIN TABLE */}
                                     <th className="p-4 border-b border-zinc-900">Total (₹)</th>
                                     <th className="p-4 border-b border-zinc-900">Status</th>
                                     <th className="p-4 border-b border-zinc-900 text-right">Action</th>
@@ -269,14 +271,14 @@ export default function AdminDashboard() {
                                                 <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-widest 
                                                     ${order.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' :
                                                     order.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500' :
-                                                        'bg-green-500/10 text-green-500'}`}
+                                                        order.status === 'SHIPPED' ? 'bg-blue-500/10 text-blue-500' :
+                                                            'bg-green-500/10 text-green-500'}`}
                                                 >
                                                     {order.status}
                                                 </span>
                                             </td>
                                             <td className="p-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    {/* NEW: View Details Button */}
                                                     <button
                                                         onClick={() => setViewingOrder(order)}
                                                         className="p-1.5 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 rounded transition-colors"
@@ -409,22 +411,66 @@ export default function AdminDashboard() {
                         </button>
                     </form>
                 )}
+
+                {/* Admin Management Tab */}
+                {activeTab === 'add-admin' && (
+                    <div className="max-w-2xl space-y-8">
+                        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
+                            <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-800 pb-4">Current Administrators</h2>
+                            {admins.length === 0 ? (
+                                <p className="text-sm text-zinc-500 font-mono">[ no admins loaded ]</p>
+                            ) : (
+                                <ul className="space-y-3">
+                                    {admins.map((admin) => (
+                                        <li key={admin.id} className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-lg group">
+                                            <div className="flex items-center gap-4">
+                                                <span className="font-bold text-white">{admin.username}</span>
+                                                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest bg-zinc-900 px-2 py-1 rounded">Active</span>
+                                            </div>
+                                            <button onClick={() => handleDeleteAdmin(admin.id, admin.username)} className="p-2 text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all" title="Delete Admin">
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        <form onSubmit={handleAddAdmin} className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
+                            <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-800 pb-4">Register New Admin</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Username *</label>
+                                    <input required type="text" name="username" value={newAdmin.username} onChange={handleAdminInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Password *</label>
+                                    <input required type="password" name="password" value={newAdmin.password} onChange={handleAdminInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                                </div>
+                            </div>
+                            <button type="submit" className="mt-8 w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
+                                Register Admin
+                            </button>
+                        </form>
+                    </div>
+                )}
             </main>
 
-            {/* View Order Modal Overlay (NEW) */}
+            {/* View Order Modal Overlay (NEW & FIXED LAYOUT) */}
             {viewingOrder && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
 
                         {/* Header */}
-                        <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 rounded-t-2xl">
+                        <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 rounded-t-2xl shrink-0">
                             <div>
                                 <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-3">
                                     ORDER #{viewingOrder.id}
                                     <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest 
                                         ${viewingOrder.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' :
                                         viewingOrder.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500' :
-                                            'bg-green-500/10 text-green-500'}`}
+                                            viewingOrder.status === 'SHIPPED' ? 'bg-blue-500/10 text-blue-500' :
+                                                'bg-green-500/10 text-green-500'}`}
                                     >
                                         {viewingOrder.status}
                                     </span>
@@ -438,19 +484,20 @@ export default function AdminDashboard() {
                         {/* Scrollable Content */}
                         <div className="p-6 overflow-y-auto space-y-6">
 
-                            {/* Customer Info */}
+                            {/* Customer Info (Stacked for better fit) */}
                             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                                 <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Customer Details</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                <div className="space-y-4 text-sm">
                                     <div>
                                         <span className="block text-zinc-500 mb-1">Email / Phone</span>
-                                        <span className="text-white font-medium">{viewingOrder.customerEmail}</span>
+                                        <span className="text-white font-medium break-all">{viewingOrder.customerEmail}</span>
                                     </div>
                                     <div>
-                                        <span className="block text-zinc-500 mb-1">Shipping Address</span>
-                                        <span className="text-white font-medium leading-relaxed whitespace-pre-wrap">
+                                        <span className="block text-zinc-500 mb-2">Shipping Address</span>
+                                        {/* Added break-words to ensure long text never causes horizontal scroll */}
+                                        <div className="bg-zinc-950 p-4 rounded-lg border border-zinc-800 text-white font-medium leading-relaxed whitespace-pre-wrap break-words">
                                             {viewingOrder.shippingAddress || 'No address provided'}
-                                        </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -462,13 +509,13 @@ export default function AdminDashboard() {
                                     <ul className="divide-y divide-zinc-800">
                                         {viewingOrder.items.map((item, idx) => (
                                             <li key={idx} className="py-4 flex justify-between items-center group">
-                                                <div className="flex flex-col">
-                                                    <span className="text-white font-bold mb-1">{item.product?.name || 'Unknown Product'}</span>
+                                                <div className="flex flex-col pr-4">
+                                                    <span className="text-white font-bold mb-1 line-clamp-2">{item.product?.name || 'Unknown Product'}</span>
                                                     <span className="text-xs font-mono text-zinc-400">
                                                         Qty: {item.quantity}  ×  ₹{item.price?.toLocaleString('en-IN')}
                                                     </span>
                                                 </div>
-                                                <span className="text-white font-black text-right">
+                                                <span className="text-white font-black shrink-0">
                                                     ₹{(item.quantity * item.price).toLocaleString('en-IN')}
                                                 </span>
                                             </li>
@@ -481,7 +528,7 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Sticky Footer Total */}
-                        <div className="p-6 bg-zinc-900/80 border-t border-zinc-800 rounded-b-2xl flex justify-between items-center">
+                        <div className="p-6 bg-zinc-900/80 border-t border-zinc-800 rounded-b-2xl flex justify-between items-center shrink-0">
                             <span className="text-zinc-400 font-bold uppercase tracking-widest text-sm">Total Amount</span>
                             <span className="text-2xl font-black text-white">₹{viewingOrder.totalAmount?.toLocaleString('en-IN')}</span>
                         </div>
