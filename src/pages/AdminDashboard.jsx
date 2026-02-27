@@ -1,41 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Package, ShoppingBag, Check, PlusCircle, LogOut, UserPlus, Eye, EyeOff, Edit2, X, Trash2 } from 'lucide-react';
+import { Package, ShoppingBag, Check, PlusCircle, LogOut, UserPlus, Eye, EyeOff, Edit2, X, Trash2, Search, Filter, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
-    // 1. Define the hardcoded categories here
     const CATEGORY_OPTIONS = [
-        "Diagnostic Tools",
-        "Mobility Aids",
-        "Surgical Instruments",
-        "PPE",
-        "Sleep Apnea",
-        "CPAP Masks",
-        "Accessories",
-        "Hospital Equip"
+        "Diagnostic Tools", "Mobility Aids", "Surgical Instruments",
+        "PPE", "Sleep Apnea", "CPAP Masks", "Accessories", "Hospital Equip"
     ];
 
-    const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'inventory', 'add-product', 'add-admin'
+    const [activeTab, setActiveTab] = useState('orders');
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
     const [admins, setAdmins] = useState([]);
     const navigate = useNavigate();
 
+    // Search and Filter states for Orders
+    const [orderSearchTerm, setOrderSearchTerm] = useState('');
+    const [orderStatusFilter, setOrderStatusFilter] = useState('ALL');
+
     const token = localStorage.getItem('adminToken');
-    const axiosConfig = {
-        headers: { 'Authorization': `Bearer ${token}` }
-    };
+    const axiosConfig = { headers: { 'Authorization': `Bearer ${token}` } };
 
     const [newProduct, setNewProduct] = useState({
         name: '', description: '', price: '', oldPrice: '', stockQuantity: '', category: '', tag: '', imageUrl: ''
     });
-
     const [editingProduct, setEditingProduct] = useState(null);
-
-    const [newAdmin, setNewAdmin] = useState({
-        username: '', password: ''
-    });
+    const [newAdmin, setNewAdmin] = useState({ username: '', password: '' });
 
     useEffect(() => {
         if (!token) {
@@ -46,24 +37,11 @@ export default function AdminDashboard() {
     }, [activeTab, navigate, token]);
 
     const handleError = (error) => {
-        // Catch both 401 (Unauthorized) and 403 (Forbidden)
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             alert("Session expired. Please log in again.");
             handleLogout();
         } else {
             console.error("API Error:", error);
-        }
-    };
-
-    const handleDeleteAdmin = async (id, username) => {
-        if (!window.confirm(`Are you sure you want to delete admin '${username}'?`)) return;
-
-        try {
-            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/admin/admins/${id}`, axiosConfig);
-            fetchData(); // Refresh list after deletion
-        } catch (error) {
-            alert("Failed to delete admin.");
-            handleError(error);
         }
     };
 
@@ -81,7 +59,6 @@ export default function AdminDashboard() {
                 const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/inventory`, axiosConfig);
                 setProducts(res.data);
             } else if (activeTab === 'add-admin') {
-                // Adjust this endpoint if your Spring Boot route differs
                 const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/admins`, axiosConfig);
                 setAdmins(res.data);
             }
@@ -90,16 +67,7 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleToggleVisibility = async (productId) => {
-        try {
-            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/inventory/${productId}/toggle-visibility`, {}, axiosConfig);
-            fetchData();
-        } catch (error) {
-            alert("Failed to toggle product visibility.");
-            handleError(error);
-        }
-    };
-
+    // --- ORDER ACTIONS ---
     const handleMarkPaid = async (orderId) => {
         try {
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/orders/${orderId}/mark-paid`, {}, axiosConfig);
@@ -119,16 +87,32 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleStockUpdate = async (productId, newStock) => {
+    const handleCancelOrder = async (orderId) => {
+        if (!window.confirm(`Are you sure you want to cancel Order #${orderId}? This will restock the items.`)) return;
         try {
-            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/inventory/${productId}`, { stockQuantity: parseInt(newStock) }, axiosConfig);
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/orders/${orderId}/cancel`, {}, axiosConfig);
             fetchData();
         } catch (error) {
+            alert("Failed to cancel order.");
             handleError(error);
         }
     };
 
-    // ADD PRODUCT - Restored to JSON with imageUrl
+    // --- INVENTORY ACTIONS ---
+    const handleToggleVisibility = async (productId) => {
+        try {
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/inventory/${productId}/toggle-visibility`, {}, axiosConfig);
+            fetchData();
+        } catch (error) { handleError(error); }
+    };
+
+    const handleStockUpdate = async (productId, newStock) => {
+        try {
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/inventory/${productId}`, { stockQuantity: parseInt(newStock) }, axiosConfig);
+            fetchData();
+        } catch (error) { handleError(error); }
+    };
+
     const handleAddProduct = async (e) => {
         e.preventDefault();
         try {
@@ -138,19 +122,13 @@ export default function AdminDashboard() {
                 oldPrice: newProduct.oldPrice ? parseFloat(newProduct.oldPrice) : null,
                 stockQuantity: parseInt(newProduct.stockQuantity)
             };
-
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/products`, payload, axiosConfig);
             alert("Product added successfully!");
-
             setNewProduct({ name: '', description: '', price: '', oldPrice: '', stockQuantity: '', category: '', tag: '', imageUrl: '' });
             setActiveTab('inventory');
-        } catch (error) {
-            alert("Failed to add product.");
-            handleError(error);
-        }
+        } catch (error) { handleError(error); }
     };
 
-    // UPDATE PRODUCT - Uses JSON with imageUrl
     const handleUpdateProduct = async (e) => {
         e.preventDefault();
         try {
@@ -160,16 +138,20 @@ export default function AdminDashboard() {
                 oldPrice: editingProduct.oldPrice ? parseFloat(editingProduct.oldPrice) : null,
                 stockQuantity: parseInt(editingProduct.stockQuantity)
             };
-
             await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/products/${editingProduct.id}`, payload, axiosConfig);
-
             alert("Product updated successfully!");
             setEditingProduct(null);
             fetchData();
-        } catch (error) {
-            alert("Failed to update product.");
-            handleError(error);
-        }
+        } catch (error) { handleError(error); }
+    };
+
+    // --- ADMIN ACTIONS ---
+    const handleDeleteAdmin = async (id, username) => {
+        if (!window.confirm(`Are you sure you want to delete admin '${username}'?`)) return;
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/admin/admins/${id}`, axiosConfig);
+            fetchData();
+        } catch (error) { handleError(error); }
     };
 
     const handleAddAdmin = async (e) => {
@@ -178,26 +160,26 @@ export default function AdminDashboard() {
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/register-admin`, newAdmin, axiosConfig);
             alert(`Admin user '${newAdmin.username}' created successfully!`);
             setNewAdmin({ username: '', password: '' });
-            fetchData(); // Refresh list after adding
+            fetchData();
         } catch (error) {
-            alert(error.response?.data || "Failed to create admin. Username might already exist.");
+            alert(error.response?.data || "Failed to create admin.");
             handleError(error);
         }
     };
 
-    const handleProductInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewProduct(prev => ({ ...prev, [name]: value }));
-    };
+    const handleProductInputChange = (e) => setNewProduct(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const handleAdminInputChange = (e) => setNewAdmin(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
-    const handleAdminInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewAdmin(prev => ({ ...prev, [name]: value }));
-    };
+    // --- FILTER LOGIC FOR ORDERS ---
+    const filteredOrders = orders.filter(order => {
+        // Checks the customerEmail field (which holds either email or phone number)
+        const matchesSearch = order.customerEmail?.toLowerCase().includes(orderSearchTerm.toLowerCase());
+        const matchesStatus = orderStatusFilter === 'ALL' || order.status === orderStatusFilter;
+        return matchesSearch && matchesStatus;
+    });
 
     return (
         <div className="min-h-screen bg-black text-zinc-50 font-sans flex relative">
-
             {/* Sidebar */}
             <aside className="w-64 bg-zinc-950 border-r border-zinc-900 p-6 flex flex-col hidden md:flex shrink-0">
                 <div className="text-2xl font-black text-white tracking-tighter mb-12">admin.</div>
@@ -215,7 +197,6 @@ export default function AdminDashboard() {
                         <UserPlus className="w-5 h-5" /> Admins
                     </button>
                 </nav>
-
                 <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold text-red-500 hover:bg-zinc-900 transition-colors mt-auto">
                     <LogOut className="w-5 h-5" /> Logout
                 </button>
@@ -231,49 +212,102 @@ export default function AdminDashboard() {
 
                 {/* Orders Tab */}
                 {activeTab === 'orders' && (
-                    <div className="overflow-x-auto border border-zinc-900 rounded-xl">
-                        <table className="w-full text-left text-sm whitespace-nowrap">
-                            <thead className="bg-zinc-950 text-zinc-400 font-mono uppercase text-xs">
-                            <tr>
-                                <th className="p-4 border-b border-zinc-900">ID</th>
-                                <th className="p-4 border-b border-zinc-900">Contact</th>
-                                <th className="p-4 border-b border-zinc-900">Address</th>
-                                <th className="p-4 border-b border-zinc-900">Total (₹)</th>
-                                <th className="p-4 border-b border-zinc-900">Status</th>
-                                <th className="p-4 border-b border-zinc-900">Action</th>
-                            </tr>
-                            </thead>
-                            <tbody className="divide-y divide-zinc-900">
-                            {orders.map(order => (
-                                <tr key={order.id} className="hover:bg-zinc-900/50">
-                                    <td className="p-4 font-mono">#{order.id}</td>
-                                    <td className="p-4 text-zinc-300">{order.customerEmail}</td>
-                                    <td className="p-4">
-                                        <div className="whitespace-normal max-w-[250px] text-xs text-zinc-400 leading-relaxed" title={order.shippingAddress}>
-                                            {order.shippingAddress || '-'}
-                                        </div>
-                                    </td>
-                                    <td className="p-4 font-bold text-white">{order.totalAmount}</td>
-                                    <td className="p-4">
-                                      <span className={`px-2 py-1 text-xs font-bold rounded uppercase tracking-widest ${order.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-green-500/10 text-green-500'}`}>
-                                        {order.status}
-                                      </span>
-                                    </td>
-                                    <td className="p-4 flex gap-2">
-                                        {order.status === 'PENDING' ? (
-                                            <button onClick={() => handleMarkPaid(order.id)} className="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-500 transition-colors">Mark Paid</button>
-                                        ) : (
-                                            <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="bg-zinc-950 border border-zinc-800 text-white text-xs rounded p-1 focus:outline-none focus:border-zinc-500">
-                                                <option value="PAID">PAID</option>
-                                                <option value="SHIPPED">SHIPPED</option>
-                                                <option value="DELIVERED">DELIVERED</option>
-                                            </select>
-                                        )}
-                                    </td>
+                    <div className="space-y-6">
+                        {/* Control Bar: Search & Filter */}
+                        <div className="flex flex-col md:flex-row gap-4 bg-zinc-950 p-4 rounded-xl border border-zinc-900">
+                            <div className="flex-1 relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                                <input
+                                    type="text"
+                                    placeholder="Search by email or phone number..."
+                                    value={orderSearchTerm}
+                                    onChange={(e) => setOrderSearchTerm(e.target.value)}
+                                    className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-white"
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Filter className="w-4 h-4 text-zinc-500" />
+                                <select
+                                    value={orderStatusFilter}
+                                    onChange={(e) => setOrderStatusFilter(e.target.value)}
+                                    className="bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white"
+                                >
+                                    <option value="ALL">All Statuses</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="PAID">Paid</option>
+                                    <option value="SHIPPED">Shipped</option>
+                                    <option value="DELIVERED">Delivered</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="overflow-x-auto border border-zinc-900 rounded-xl">
+                            <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead className="bg-zinc-950 text-zinc-400 font-mono uppercase text-xs">
+                                <tr>
+                                    <th className="p-4 border-b border-zinc-900">ID</th>
+                                    <th className="p-4 border-b border-zinc-900">Contact</th>
+                                    <th className="p-4 border-b border-zinc-900">Address</th>
+                                    <th className="p-4 border-b border-zinc-900">Total (₹)</th>
+                                    <th className="p-4 border-b border-zinc-900">Status</th>
+                                    <th className="p-4 border-b border-zinc-900 text-right">Action</th>
                                 </tr>
-                            ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-zinc-900">
+                                {filteredOrders.length === 0 ? (
+                                    <tr><td colSpan="6" className="p-8 text-center text-zinc-500 font-mono">No orders found matching criteria.</td></tr>
+                                ) : (
+                                    filteredOrders.map(order => (
+                                        <tr key={order.id} className={`hover:bg-zinc-900/50 transition-colors ${order.status === 'CANCELLED' ? 'opacity-50' : ''}`}>
+                                            <td className="p-4 font-mono">#{order.id}</td>
+                                            <td className="p-4 text-zinc-300">{order.customerEmail}</td>
+                                            <td className="p-4">
+                                                <div className="whitespace-normal max-w-[200px] text-xs text-zinc-400 leading-relaxed" title={order.shippingAddress}>
+                                                    {order.shippingAddress || '-'}
+                                                </div>
+                                            </td>
+                                            <td className="p-4 font-bold text-white">{order.totalAmount}</td>
+                                            <td className="p-4">
+                                                <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-widest 
+                                                    ${order.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' :
+                                                    order.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500' :
+                                                        'bg-green-500/10 text-green-500'}`}
+                                                >
+                                                    {order.status}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-right">
+                                                {order.status === 'CANCELLED' ? (
+                                                    <span className="text-xs text-zinc-600 font-bold uppercase">Cancelled</span>
+                                                ) : (
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        {order.status === 'PENDING' ? (
+                                                            <button onClick={() => handleMarkPaid(order.id)} className="bg-green-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-green-500 transition-colors">Mark Paid</button>
+                                                        ) : (
+                                                            <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="bg-zinc-950 border border-zinc-800 text-white text-xs rounded py-1.5 px-2 focus:outline-none focus:border-zinc-500">
+                                                                <option value="PAID">PAID</option>
+                                                                <option value="SHIPPED">SHIPPED</option>
+                                                                <option value="DELIVERED">DELIVERED</option>
+                                                            </select>
+                                                        )}
+                                                        {/* CANCEL BUTTON */}
+                                                        <button
+                                                            onClick={() => handleCancelOrder(order.id)}
+                                                            className="p-1.5 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors"
+                                                            title="Cancel Order & Restock"
+                                                        >
+                                                            <XCircle className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
@@ -347,24 +381,13 @@ export default function AdminDashboard() {
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Initial Stock *</label>
                                 <input required type="number" name="stockQuantity" value={newProduct.stockQuantity} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
-
-                            {/* CATEGORY DROPDOWN - Add Product */}
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Category *</label>
-                                <select
-                                    required
-                                    name="category"
-                                    value={newProduct.category}
-                                    onChange={handleProductInputChange}
-                                    className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white appearance-none"
-                                >
+                                <select required name="category" value={newProduct.category} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white appearance-none">
                                     <option value="" disabled>Select category...</option>
-                                    {CATEGORY_OPTIONS.map((cat, idx) => (
-                                        <option key={idx} value={cat}>{cat}</option>
-                                    ))}
+                                    {CATEGORY_OPTIONS.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
                                 </select>
                             </div>
-
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Tag</label>
                                 <input type="text" name="tag" value={newProduct.tag} onChange={handleProductInputChange} placeholder="e.g. Best Seller" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
@@ -395,11 +418,7 @@ export default function AdminDashboard() {
                                                 <span className="font-bold text-white">{admin.username}</span>
                                                 <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest bg-zinc-900 px-2 py-1 rounded">Active</span>
                                             </div>
-                                            <button
-                                                onClick={() => handleDeleteAdmin(admin.id, admin.username)}
-                                                className="p-2 text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                                                title="Delete Admin"
-                                            >
+                                            <button onClick={() => handleDeleteAdmin(admin.id, admin.username)} className="p-2 text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all" title="Delete Admin">
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </li>
@@ -460,23 +479,13 @@ export default function AdminDashboard() {
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Stock Quantity</label>
                                 <input required type="number" value={editingProduct.stockQuantity} onChange={e => setEditingProduct({...editingProduct, stockQuantity: parseInt(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
-
-                            {/* CATEGORY DROPDOWN - Edit Product */}
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Category</label>
-                                <select
-                                    required
-                                    value={editingProduct.category}
-                                    onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}
-                                    className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white appearance-none"
-                                >
+                                <select required value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white appearance-none">
                                     <option value="" disabled>Select category...</option>
-                                    {CATEGORY_OPTIONS.map((cat, idx) => (
-                                        <option key={idx} value={cat}>{cat}</option>
-                                    ))}
+                                    {CATEGORY_OPTIONS.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
                                 </select>
                             </div>
-
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Tag</label>
                                 <input type="text" value={editingProduct.tag || ''} onChange={e => setEditingProduct({...editingProduct, tag: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
@@ -485,7 +494,6 @@ export default function AdminDashboard() {
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Image URL</label>
                                 <input type="url" value={editingProduct.imageUrl || ''} onChange={e => setEditingProduct({...editingProduct, imageUrl: e.target.value})} placeholder="https://..." className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
-
                             <div className="md:col-span-2 mt-6 flex gap-4">
                                 <button type="submit" className="flex-1 bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
                                     Save Changes
