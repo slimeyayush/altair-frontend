@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 export default function AdminDashboard() {
     const CATEGORY_OPTIONS = [
         "Diagnostic Tools", "Mobility Aids", "Surgical Instruments",
-        "PPE", "Sleep Apnea", "CPAP Masks", "Accessories", "Hospital Equip"
+        "PPE", "Sleep Apnea", "CPAP Machines", "Accessories", "Hospital Equip"
     ];
 
     const [activeTab, setActiveTab] = useState('orders');
