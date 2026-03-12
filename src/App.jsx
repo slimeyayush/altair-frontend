@@ -44,7 +44,7 @@ const App = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[#00A152] selection:text-white pb-20">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[#00A152] selection:text-white pt-20">
             <Navbar />
 
             {/* Hero Section */}
@@ -125,7 +125,6 @@ const App = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {products.slice(0, 4).map((product) => {
                             const hasVariants = product.variants && product.variants.length > 0;
-                            // Only look for items in cart that DO NOT have a specific variant selected yet
                             const cartItem = cartItems.find(item => item.product.id === product.id && !item.variantDetails);
 
                             return (
@@ -164,7 +163,6 @@ const App = () => {
                                         </div>
 
                                         <div className="mt-auto">
-                                            {/* If product has variants, force user to Product Page to select them */}
                                             {hasVariants ? (
                                                 <Link to={`/product/${product.id}`} className="w-full bg-white border border-slate-200 hover:bg-[#0B2C5A] hover:border-[#0B2C5A] hover:text-white text-slate-700 font-bold py-3 rounded-xl transition-all duration-300 text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm">
                                                     Select Options
@@ -194,20 +192,8 @@ const App = () => {
                 )}
             </section>
 
-            {/* Promotional Banner */}
-            <section className="w-full bg-[#0B2C5A] py-20 px-6 text-center text-white relative overflow-hidden my-12 border-y border-[#082042]">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2080&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
-                <div className="relative z-10 max-w-3xl mx-auto">
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6">Healthcare Essentials</h2>
-                    <p className="text-slate-300 text-lg mb-10 font-medium max-w-xl mx-auto">Premium quality supplies and diagnostic tools designed for professional medical facilities and rigorous home care.</p>
-                    <Link to="/shop" className="inline-block bg-[#00A152] text-white font-bold px-10 py-4 rounded-xl hover:bg-[#008a46] hover:-translate-y-1 transition-all duration-300 uppercase tracking-widest text-sm shadow-xl shadow-[#00A152]/20">
-                        Explore Inventory
-                    </Link>
-                </div>
-            </section>
-
-            {/* Testimonials Section */}
-            <section className="max-w-7xl mx-auto px-6 py-20 bg-slate-50">
+            {/* Testimonials Section (Moved Below Featured Products) */}
+            <section className="max-w-7xl mx-auto px-6 py-20 bg-slate-50 border-t border-slate-100">
                 <h2 className="text-3xl font-black tracking-tight text-[#0B2C5A] text-center mb-16">Trusted by Healthcare Professionals</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {testimonials.map((testimonial, idx) => (
@@ -226,6 +212,90 @@ const App = () => {
                     ))}
                 </div>
             </section>
+
+            {/* Promotional Banner */}
+            <section className="w-full bg-[#0B2C5A] py-20 px-6 text-center text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2080&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
+                <div className="relative z-10 max-w-3xl mx-auto">
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6">Healthcare Essentials</h2>
+                    <p className="text-slate-300 text-lg mb-10 font-medium max-w-xl mx-auto">Premium quality supplies and diagnostic tools designed for professional medical facilities and rigorous home care.</p>
+                    <Link to="/shop" className="inline-block bg-[#00A152] text-white font-bold px-10 py-4 rounded-xl hover:bg-[#008a46] hover:-translate-y-1 transition-all duration-300 uppercase tracking-widest text-sm shadow-xl shadow-[#00A152]/20">
+                        Explore Inventory
+                    </Link>
+                </div>
+            </section>
+
+            {/* Footer Restored and Styled to Match Theme */}
+            <footer className="bg-white pt-20 pb-10 border-t border-slate-200">
+                <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 text-sm mb-16">
+                    {/* Brand Column */}
+                    <div>
+                        <span className="text-xl font-black tracking-tighter text-[#0B2C5A] mb-6 flex items-center gap-2">
+                            <div className="w-6 h-6 bg-[#00A152] rounded-sm flex items-center justify-center">
+                                <Activity className="w-4 h-4 text-white" />
+                            </div> ALTAIR<span className="text-[#00A152]">.</span>
+                        </span>
+                        <p className="text-slate-500 mb-6 leading-relaxed font-medium">Providing reliable medical equipment and supplies to healthcare institutions and individuals worldwide since 2012.</p>
+                        <div className="flex gap-3 text-[#0B2C5A]">
+                            <a href="#" className="p-2 bg-slate-50 border border-slate-100 rounded-full hover:bg-slate-100 transition-colors"><Twitter className="w-4 h-4" /></a>
+                            <a href="#" className="p-2 bg-slate-50 border border-slate-100 rounded-full hover:bg-slate-100 transition-colors"><Eye className="w-4 h-4" /></a>
+                        </div>
+                    </div>
+
+                    {/* Customer Service */}
+                    <div>
+                        <h4 className="text-slate-900 font-bold mb-6 uppercase tracking-widest text-xs">Customer Service</h4>
+                        <ul className="space-y-4 text-slate-500 font-medium">
+                            <li><a href="#" className="hover:text-[#00A152] transition-colors">My Account</a></li>
+                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Track an Order</a></li>
+                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Shipping & Returns</a></li>
+                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Support Center</a></li>
+                        </ul>
+                    </div>
+
+                    {/* Explore */}
+                    <div>
+                        <h4 className="text-slate-900 font-bold mb-6 uppercase tracking-widest text-xs">Explore</h4>
+                        <ul className="space-y-4 text-slate-500 font-medium">
+                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Equipment Maintenance</a></li>
+                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Quality Standards</a></li>
+                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Our Story</a></li>
+                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+
+                    {/* Newsletter */}
+                    <div>
+                        <h4 className="text-slate-900 font-bold mb-6 uppercase tracking-widest text-xs">Newsletter</h4>
+                        <p className="text-slate-500 mb-4 font-medium">Stay updated with the latest in medical technology and supplies.</p>
+                        <div className="flex flex-col gap-3">
+                            <input type="email" placeholder="Email address" className="bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 w-full rounded-lg focus:outline-none focus:border-[#0B2C5A]" />
+                            <button className="bg-[#0B2C5A] text-white px-4 py-3 rounded-lg hover:bg-[#082042] transition-colors font-bold uppercase tracking-widest text-[11px]">
+                                Subscribe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Bottom Bar */}
+                <div className="max-w-7xl mx-auto px-6 border-t border-slate-100 pt-8 flex flex-col md:flex-row items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-widest">
+                    <p>&copy; 2026 Altair Health Plus. All rights reserved.</p>
+                    <div className="flex gap-4 mt-4 md:mt-0 items-center">
+                        <span>GSTIN: 07AAACA1234A1Z5</span>
+                    </div>
+                </div>
+            </footer>
+
+            {/* Floating WhatsApp Button */}
+            <a
+                href="https://wa.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="fixed bottom-8 right-8 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform z-50 flex items-center justify-center"
+                aria-label="Contact us on WhatsApp"
+            >
+                <MessageCircle className="w-6 h-6" />
+            </a>
         </div>
     );
 };
