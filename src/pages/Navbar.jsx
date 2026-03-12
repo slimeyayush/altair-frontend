@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingCart, User, Menu, LogOut, Activity } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
@@ -45,8 +45,8 @@ export default function Navbar() {
 
                         {/* Logo */}
                         <Link to="/" className="flex items-center gap-2 shrink-0 group">
-                            <div className="w-7 h-7 bg-[#00A152] rounded-md flex items-center justify-center group-hover:bg-[#0B2C5A] transition-colors shadow-sm">
-                                <Activity className="w-4 h-4 text-white" />
+                            <div className="w-7 h-7 bg-[#00A152] rounded-md flex items-center justify-center group-hover:bg-[#0B2C5A] transition-colors shadow-sm text-white font-black text-xs">
+                                A
                             </div>
                             <span className="text-xl font-black tracking-tighter text-[#0B2C5A]">
                                 ALTAIR<span className="text-[#00A152]">.</span>
