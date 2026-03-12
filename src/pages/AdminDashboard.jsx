@@ -376,7 +376,6 @@ export default function AdminDashboard() {
                                     <td className="p-4 text-right">
                                         <div className="flex justify-end gap-2">
                                             <button
-                                                // Initialize the editing object safely mapping arrays to empty if they don't exist yet
                                                 onClick={() => setEditingProduct({...product, variants: product.variants || [], additionalImages: product.additionalImages || []})}
                                                 className="p-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors" title="Edit Product"
                                             >
@@ -427,7 +426,8 @@ export default function AdminDashboard() {
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Main Image URL</label>
-                                <input type="url" name="imageUrl" value={newProduct.imageUrl} onChange={handleProductInputChange} placeholder="https://..." className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                                {/* CHANGED TO TYPE TEXT */}
+                                <input type="text" name="imageUrl" value={newProduct.imageUrl} onChange={handleProductInputChange} placeholder="https://..." className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
 
                             {/* DYNAMIC ADDITIONAL IMAGES */}
@@ -440,7 +440,8 @@ export default function AdminDashboard() {
                                 </div>
                                 {newProduct.additionalImages?.map((img, idx) => (
                                     <div key={idx} className="flex items-center gap-3 mb-3">
-                                        <input type="url" required value={img.imageUrl} onChange={(e) => handleArrayItemChange(false, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-950 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
+                                        {/* CHANGED TO TYPE TEXT */}
+                                        <input type="text" required value={img.imageUrl || ''} onChange={(e) => handleArrayItemChange(false, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-950 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
                                         <button type="button" onClick={() => handleRemoveArrayItem(false, 'additionalImages', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-950 border border-zinc-800 rounded-lg transition-colors"><X className="w-4 h-4" /></button>
                                     </div>
                                 ))}
@@ -487,7 +488,6 @@ export default function AdminDashboard() {
 
                 {/* Admin Management Tab */}
                 {activeTab === 'add-admin' && (
-                    // ... (Unchanged)
                     <div className="max-w-2xl space-y-8">
                         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
                             <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-800 pb-4">Current Administrators</h2>
@@ -654,7 +654,8 @@ export default function AdminDashboard() {
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Main Image URL</label>
-                                <input type="url" value={editingProduct.imageUrl || ''} onChange={e => setEditingProduct({...editingProduct, imageUrl: e.target.value})} placeholder="https://..." className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                                {/* CHANGED TO TYPE TEXT */}
+                                <input type="text" value={editingProduct.imageUrl || ''} onChange={e => setEditingProduct({...editingProduct, imageUrl: e.target.value})} placeholder="https://..." className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
 
                             {/* DYNAMIC ADDITIONAL IMAGES (EDIT) */}
@@ -667,7 +668,8 @@ export default function AdminDashboard() {
                                 </div>
                                 {editingProduct.additionalImages?.map((img, idx) => (
                                     <div key={idx} className="flex items-center gap-3 mb-3">
-                                        <input type="url" required value={img.imageUrl} onChange={(e) => handleArrayItemChange(true, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-900 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
+                                        {/* CHANGED TO TYPE TEXT */}
+                                        <input type="text" required value={img.imageUrl || ''} onChange={(e) => handleArrayItemChange(true, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-900 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
                                         <button type="button" onClick={() => handleRemoveArrayItem(true, 'additionalImages', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-900 border border-zinc-800 rounded-lg transition-colors"><X className="w-4 h-4" /></button>
                                     </div>
                                 ))}
