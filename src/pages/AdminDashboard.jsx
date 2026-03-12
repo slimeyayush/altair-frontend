@@ -25,15 +25,20 @@ export default function AdminDashboard() {
     const token = localStorage.getItem('adminToken');
     const axiosConfig = { headers: { 'Authorization': `Bearer ${token}` } };
 
-    const [newProduct, setNewProduct] = useState({
-        name: '', description: '', price: '', oldPrice: '', stockQuantity: '', category: '', tag: '', imageUrl: ''
-    });
+    const initialProductState = {
+        name: '', description: '', price: '', oldPrice: '', stockQuantity: '', category: '', tag: '', imageUrl: '',
+        additionalImages: [], variants: []
+    };
+
+    const [newProduct, setNewProduct] = useState(initialProductState);
     const [editingProduct, setEditingProduct] = useState(null);
     const [newAdmin, setNewAdmin] = useState({ username: '', password: '' });
+
     const handleLogout = () => {
         localStorage.removeItem('adminToken');
         navigate('/admin/login');
     };
+
     const handleError = (error) => {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             alert("Session expired. Please log in again.");
@@ -42,6 +47,7 @@ export default function AdminDashboard() {
             console.error("API Error:", error);
         }
     };
+
     const fetchData = async () => {
         try {
             if (activeTab === 'orders') {
@@ -58,20 +64,35 @@ export default function AdminDashboard() {
             handleError(error);
         }
     };
+
     useEffect(() => {
         if (!token) {
             navigate('/admin/login');
             return;
         }
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab, navigate, token]);
 
+    // --- DYNAMIC ARRAY HANDLERS (Images & Variants) ---
+    const handleAddArrayItem = (isEditing, field, defaultObj) => {
+        const setter = isEditing ? setEditingProduct : setNewProduct;
+        setter(prev => ({ ...prev, [field]: [...(prev[field] || []), defaultObj] }));
+    };
 
+    const handleRemoveArrayItem = (isEditing, field, index) => {
+        const setter = isEditing ? setEditingProduct : setNewProduct;
+        setter(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) }));
+    };
 
-
-
-
+    const handleArrayItemChange = (isEditing, field, index, key, value) => {
+        const setter = isEditing ? setEditingProduct : setNewProduct;
+        setter(prev => {
+            const newArray = [...(prev[field] || [])];
+            newArray[index] = { ...newArray[index], [key]: value };
+            return { ...prev, [field]: newArray };
+        });
+    };
 
     // --- ORDER ACTIONS ---
     const handleMarkPaid = async (orderId) => {
@@ -126,11 +147,13 @@ export default function AdminDashboard() {
                 ...newProduct,
                 price: parseFloat(newProduct.price),
                 oldPrice: newProduct.oldPrice ? parseFloat(newProduct.oldPrice) : null,
-                stockQuantity: parseInt(newProduct.stockQuantity)
+                stockQuantity: parseInt(newProduct.stockQuantity),
+                variants: newProduct.variants || [],
+                additionalImages: newProduct.additionalImages || []
             };
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/products`, payload, axiosConfig);
             alert("Product added successfully!");
-            setNewProduct({ name: '', description: '', price: '', oldPrice: '', stockQuantity: '', category: '', tag: '', imageUrl: '' });
+            setNewProduct(initialProductState);
             setActiveTab('inventory');
         } catch (error) { handleError(error); }
     };
@@ -142,7 +165,9 @@ export default function AdminDashboard() {
                 ...editingProduct,
                 price: parseFloat(editingProduct.price),
                 oldPrice: editingProduct.oldPrice ? parseFloat(editingProduct.oldPrice) : null,
-                stockQuantity: parseInt(editingProduct.stockQuantity)
+                stockQuantity: parseInt(editingProduct.stockQuantity),
+                variants: editingProduct.variants || [],
+                additionalImages: editingProduct.additionalImages || []
             };
             await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/products/${editingProduct.id}`, payload, axiosConfig);
             alert("Product updated successfully!");
@@ -218,7 +243,6 @@ export default function AdminDashboard() {
                 {/* Orders Tab */}
                 {activeTab === 'orders' && (
                     <div className="space-y-6">
-                        {/* Control Bar: Search & Filter */}
                         <div className="flex flex-col md:flex-row gap-4 bg-zinc-950 p-4 rounded-xl border border-zinc-900">
                             <div className="flex-1 relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
@@ -351,7 +375,11 @@ export default function AdminDashboard() {
                                     </td>
                                     <td className="p-4 text-right">
                                         <div className="flex justify-end gap-2">
-                                            <button onClick={() => setEditingProduct(product)} className="p-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors" title="Edit Product">
+                                            <button
+                                                // Initialize the editing object safely mapping arrays to empty if they don't exist yet
+                                                onClick={() => setEditingProduct({...product, variants: product.variants || [], additionalImages: product.additionalImages || []})}
+                                                className="p-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors" title="Edit Product"
+                                            >
                                                 <Edit2 className="w-5 h-5" />
                                             </button>
                                             <button onClick={() => handleToggleVisibility(product.id)} className={`p-2 rounded-lg transition-colors ${product.active ? 'text-zinc-400 hover:bg-red-900/30 hover:text-red-500' : 'text-zinc-400 hover:bg-green-900/30 hover:text-green-500'}`} title={product.active ? "Hide" : "Show"}>
@@ -368,7 +396,7 @@ export default function AdminDashboard() {
 
                 {/* Add Product Form */}
                 {activeTab === 'add-product' && (
-                    <form onSubmit={handleAddProduct} className="max-w-2xl bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
+                    <form onSubmit={handleAddProduct} className="max-w-3xl bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="md:col-span-2">
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Product Name *</label>
@@ -379,7 +407,7 @@ export default function AdminDashboard() {
                                 <textarea required name="description" value={newProduct.description} onChange={handleProductInputChange} rows="3" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white"></textarea>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Price (₹) *</label>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Base Price (₹) *</label>
                                 <input required type="number" step="0.01" name="price" value={newProduct.price} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
                             <div>
@@ -387,7 +415,7 @@ export default function AdminDashboard() {
                                 <input type="number" step="0.01" name="oldPrice" value={newProduct.oldPrice} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Initial Stock *</label>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Base Stock *</label>
                                 <input required type="number" name="stockQuantity" value={newProduct.stockQuantity} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
                             <div>
@@ -397,13 +425,58 @@ export default function AdminDashboard() {
                                     {CATEGORY_OPTIONS.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
                                 </select>
                             </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Tag</label>
-                                <input type="text" name="tag" value={newProduct.tag} onChange={handleProductInputChange} placeholder="e.g. Best Seller" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
                             <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Image URL</label>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Main Image URL</label>
                                 <input type="url" name="imageUrl" value={newProduct.imageUrl} onChange={handleProductInputChange} placeholder="https://..." className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+
+                            {/* DYNAMIC ADDITIONAL IMAGES */}
+                            <div className="md:col-span-2 border-t border-zinc-800 pt-6 mt-2">
+                                <div className="flex justify-between items-center mb-4">
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">Additional Image Gallery</label>
+                                    <button type="button" onClick={() => handleAddArrayItem(false, 'additionalImages', { imageUrl: '' })} className="flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors">
+                                        <PlusCircle className="w-4 h-4" /> Add Image
+                                    </button>
+                                </div>
+                                {newProduct.additionalImages?.map((img, idx) => (
+                                    <div key={idx} className="flex items-center gap-3 mb-3">
+                                        <input type="url" required value={img.imageUrl} onChange={(e) => handleArrayItemChange(false, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-950 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
+                                        <button type="button" onClick={() => handleRemoveArrayItem(false, 'additionalImages', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-950 border border-zinc-800 rounded-lg transition-colors"><X className="w-4 h-4" /></button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* DYNAMIC VARIANTS */}
+                            <div className="md:col-span-2 border-t border-zinc-800 pt-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">Product Variants</label>
+                                    <button type="button" onClick={() => handleAddArrayItem(false, 'variants', { variantType: '', variantSize: '', stockQuantity: 0, priceOverride: '' })} className="flex items-center gap-1 text-xs font-bold text-green-400 hover:text-green-300 transition-colors">
+                                        <PlusCircle className="w-4 h-4" /> Add Variant
+                                    </button>
+                                </div>
+                                {newProduct.variants?.map((v, idx) => (
+                                    <div key={idx} className="grid grid-cols-5 gap-3 mb-3 bg-zinc-950 p-3 rounded-lg border border-zinc-800 items-end">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Type *</label>
+                                            <input type="text" required value={v.variantType} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'variantType', e.target.value)} placeholder="e.g. Mask" className="w-full bg-zinc-900 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Size</label>
+                                            <input type="text" value={v.variantSize} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'variantSize', e.target.value)} placeholder="e.g. Medium" className="w-full bg-zinc-900 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Stock *</label>
+                                            <input type="number" required value={v.stockQuantity} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'stockQuantity', parseInt(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Price (Override)</label>
+                                            <input type="number" step="0.01" value={v.priceOverride || ''} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'priceOverride', e.target.value ? parseFloat(e.target.value) : null)} placeholder="₹" className="w-full bg-zinc-900 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
+                                        </div>
+                                        <div className="flex justify-end pb-1">
+                                            <button type="button" onClick={() => handleRemoveArrayItem(false, 'variants', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-900 border border-zinc-800 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                         <button type="submit" className="mt-8 w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
@@ -414,6 +487,7 @@ export default function AdminDashboard() {
 
                 {/* Admin Management Tab */}
                 {activeTab === 'add-admin' && (
+                    // ... (Unchanged)
                     <div className="max-w-2xl space-y-8">
                         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
                             <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-800 pb-4">Current Administrators</h2>
@@ -456,7 +530,7 @@ export default function AdminDashboard() {
                 )}
             </main>
 
-            {/* View Order Modal Overlay (NEW & FIXED LAYOUT) */}
+            {/* View Order Modal Overlay */}
             {viewingOrder && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
@@ -483,8 +557,6 @@ export default function AdminDashboard() {
 
                         {/* Scrollable Content */}
                         <div className="p-6 overflow-y-auto space-y-6">
-
-                            {/* Customer Info (Stacked for better fit) */}
                             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                                 <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Customer Details</h3>
                                 <div className="space-y-4 text-sm">
@@ -494,7 +566,6 @@ export default function AdminDashboard() {
                                     </div>
                                     <div>
                                         <span className="block text-zinc-500 mb-2">Shipping Address</span>
-                                        {/* Added break-words to ensure long text never causes horizontal scroll */}
                                         <div className="bg-zinc-950 p-4 rounded-lg border border-zinc-800 text-white font-medium leading-relaxed whitespace-pre-wrap break-words">
                                             {viewingOrder.shippingAddress || 'No address provided'}
                                         </div>
@@ -502,7 +573,7 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
 
-                            {/* Products List */}
+                            {/* Products List (UPDATED TO SHOW VARIANTS) */}
                             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                                 <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Products Ordered</h3>
                                 {viewingOrder.items && viewingOrder.items.length > 0 ? (
@@ -511,12 +582,18 @@ export default function AdminDashboard() {
                                             <li key={idx} className="py-4 flex justify-between items-center group">
                                                 <div className="flex flex-col pr-4">
                                                     <span className="text-white font-bold mb-1 line-clamp-2">{item.product?.name || 'Unknown Product'}</span>
+                                                    {/* Inject variant details here if present */}
+                                                    {item.productVariant && (
+                                                        <span className="text-[11px] font-bold text-blue-400 mb-1">
+                                                            [ {item.productVariant.variantType} - {item.productVariant.variantSize} ]
+                                                        </span>
+                                                    )}
                                                     <span className="text-xs font-mono text-zinc-400">
-                                                        Qty: {item.quantity}  ×  ₹{item.price?.toLocaleString('en-IN')}
+                                                        Qty: {item.quantity}  ×  ₹{item.priceAtPurchase?.toLocaleString('en-IN') || item.price?.toLocaleString('en-IN')}
                                                     </span>
                                                 </div>
                                                 <span className="text-white font-black shrink-0">
-                                                    ₹{(item.quantity * item.price).toLocaleString('en-IN')}
+                                                    ₹{(item.quantity * (item.priceAtPurchase || item.price || 0)).toLocaleString('en-IN')}
                                                 </span>
                                             </li>
                                         ))}
@@ -532,7 +609,6 @@ export default function AdminDashboard() {
                             <span className="text-zinc-400 font-bold uppercase tracking-widest text-sm">Total Amount</span>
                             <span className="text-2xl font-black text-white">₹{viewingOrder.totalAmount?.toLocaleString('en-IN')}</span>
                         </div>
-
                     </div>
                 </div>
             )}
@@ -540,7 +616,7 @@ export default function AdminDashboard() {
             {/* Edit Product Modal Overlay */}
             {editingProduct && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-6 border-b border-zinc-800 pb-4">
                             <h2 className="text-xl font-black uppercase tracking-tighter">Edit Product</h2>
                             <button onClick={() => setEditingProduct(null)} className="text-zinc-500 hover:text-white transition-colors">
@@ -558,7 +634,7 @@ export default function AdminDashboard() {
                                 <textarea required rows="2" value={editingProduct.description} onChange={e => setEditingProduct({...editingProduct, description: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white"></textarea>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Price (₹)</label>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Base Price (₹)</label>
                                 <input required type="number" step="0.01" value={editingProduct.price} onChange={e => setEditingProduct({...editingProduct, price: parseFloat(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
                             <div>
@@ -566,7 +642,7 @@ export default function AdminDashboard() {
                                 <input type="number" step="0.01" value={editingProduct.oldPrice || ''} onChange={e => setEditingProduct({...editingProduct, oldPrice: parseFloat(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Stock Quantity</label>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Base Stock Quantity</label>
                                 <input required type="number" value={editingProduct.stockQuantity} onChange={e => setEditingProduct({...editingProduct, stockQuantity: parseInt(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
                             <div>
@@ -576,14 +652,60 @@ export default function AdminDashboard() {
                                     {CATEGORY_OPTIONS.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
                                 </select>
                             </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Tag</label>
-                                <input type="text" value={editingProduct.tag || ''} onChange={e => setEditingProduct({...editingProduct, tag: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
                             <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Image URL</label>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Main Image URL</label>
                                 <input type="url" value={editingProduct.imageUrl || ''} onChange={e => setEditingProduct({...editingProduct, imageUrl: e.target.value})} placeholder="https://..." className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
+
+                            {/* DYNAMIC ADDITIONAL IMAGES (EDIT) */}
+                            <div className="md:col-span-2 border-t border-zinc-800 pt-6 mt-2">
+                                <div className="flex justify-between items-center mb-4">
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">Additional Image Gallery</label>
+                                    <button type="button" onClick={() => handleAddArrayItem(true, 'additionalImages', { imageUrl: '' })} className="flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors">
+                                        <PlusCircle className="w-4 h-4" /> Add Image
+                                    </button>
+                                </div>
+                                {editingProduct.additionalImages?.map((img, idx) => (
+                                    <div key={idx} className="flex items-center gap-3 mb-3">
+                                        <input type="url" required value={img.imageUrl} onChange={(e) => handleArrayItemChange(true, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-900 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
+                                        <button type="button" onClick={() => handleRemoveArrayItem(true, 'additionalImages', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-900 border border-zinc-800 rounded-lg transition-colors"><X className="w-4 h-4" /></button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* DYNAMIC VARIANTS (EDIT) */}
+                            <div className="md:col-span-2 border-t border-zinc-800 pt-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">Product Variants</label>
+                                    <button type="button" onClick={() => handleAddArrayItem(true, 'variants', { variantType: '', variantSize: '', stockQuantity: 0, priceOverride: '' })} className="flex items-center gap-1 text-xs font-bold text-green-400 hover:text-green-300 transition-colors">
+                                        <PlusCircle className="w-4 h-4" /> Add Variant
+                                    </button>
+                                </div>
+                                {editingProduct.variants?.map((v, idx) => (
+                                    <div key={idx} className="grid grid-cols-5 gap-3 mb-3 bg-zinc-900 p-3 rounded-lg border border-zinc-800 items-end">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Type *</label>
+                                            <input type="text" required value={v.variantType} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'variantType', e.target.value)} placeholder="e.g. Mask" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Size</label>
+                                            <input type="text" value={v.variantSize} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'variantSize', e.target.value)} placeholder="e.g. Medium" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Stock *</label>
+                                            <input type="number" required value={v.stockQuantity} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'stockQuantity', parseInt(e.target.value) || 0)} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Price Override</label>
+                                            <input type="number" step="0.01" value={v.priceOverride || ''} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'priceOverride', e.target.value ? parseFloat(e.target.value) : null)} placeholder="₹" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
+                                        </div>
+                                        <div className="flex justify-end pb-1">
+                                            <button type="button" onClick={() => handleRemoveArrayItem(true, 'variants', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-950 border border-zinc-800 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
                             <div className="md:col-span-2 mt-6 flex gap-4">
                                 <button type="submit" className="flex-1 bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
                                     Save Changes
