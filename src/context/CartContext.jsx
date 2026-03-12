@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from './AuthContext'; // Ensure this path is correct
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
@@ -17,7 +17,7 @@ export const CartProvider = ({ children }) => {
         return { headers: { 'Authorization': `Bearer ${token}` } };
     };
 
-    // 1. INITIAL LOAD: Fetch DB cart if logged in, else Local Storage
+    // 1. INITIAL LOAD
     useEffect(() => {
         if (loading) return;
 
@@ -38,42 +38,49 @@ export const CartProvider = ({ children }) => {
         }
     }, [user, loading]);
 
-    // 2. GUEST SYNC: Save to local storage only if NOT logged in
+    // 2. GUEST SYNC
     useEffect(() => {
         if (!user && !loading) {
             localStorage.setItem('mediDarkCart', JSON.stringify(cartItems));
         }
     }, [cartItems, user, loading]);
 
-    // 3. ADD TO CART
-    const addToCart = async (product) => {
+    // 3. ADD TO CART (Now supports Variants)
+    const addToCart = async (product, variantDetails = null) => {
         if (user) {
             try {
                 const config = await getAuthHeader();
-                const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/cart/add`, { productId: product.id, quantity: 1 }, config);
-                setCartItems(res.data); // Server dictates the new state
+                const payload = {
+                    productId: product.id,
+                    quantity: 1,
+                    variantId: product.selectedVariantId,
+                    variantDetails: variantDetails
+                };
+                const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/cart/add`, payload, config);
+                setCartItems(res.data);
             } catch (error) {
                 console.error("Error adding to DB cart", error);
             }
         } else {
             setCartItems((prev) => {
-                const existing = prev.find((item) => item.product.id === product.id);
-                if (existing) {
-                    return prev.map((item) =>
-                        item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-                    );
+                const existingIndex = prev.findIndex((item) => item.product.id === product.id && item.variantDetails === variantDetails);
+                if (existingIndex >= 0) {
+                    const updated = [...prev];
+                    updated[existingIndex].quantity += 1;
+                    return updated;
                 }
-                return [...prev, { product, quantity: 1 }];
+                return [...prev, { product, quantity: 1, variantDetails }];
             });
         }
     };
 
-    // 4. UPDATE QUANTITY
-    const updateQuantity = async (productId, delta) => {
+    // 4. UPDATE QUANTITY (Now supports Variants)
+    const updateQuantity = async (productId, delta, variantDetails = null) => {
         if (user) {
             try {
                 const config = await getAuthHeader();
-                const res = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/cart/update/${productId}`, { delta }, config);
+                // Passing variantDetails to help DB distinguish items if needed
+                const res = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/cart/update/${productId}`, { delta, variantDetails }, config);
                 setCartItems(res.data);
             } catch (error) {
                 console.error("Error updating DB cart", error);
@@ -81,7 +88,7 @@ export const CartProvider = ({ children }) => {
         } else {
             setCartItems((prev) =>
                 prev.map((item) => {
-                    if (item.product.id === productId) {
+                    if (item.product.id === productId && item.variantDetails === variantDetails) {
                         return { ...item, quantity: item.quantity + delta };
                     }
                     return item;
@@ -90,18 +97,19 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    // 5. REMOVE FROM CART
-    const removeFromCart = async (productId) => {
+    // 5. REMOVE FROM CART (Now supports Variants)
+    const removeFromCart = async (productId, variantDetails = null) => {
         if (user) {
             try {
                 const config = await getAuthHeader();
-                const res = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/cart/remove/${productId}`, config);
+                // Passing variantDetails as query param so DB can drop the exact variant
+                const res = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/cart/remove/${productId}?variantDetails=${encodeURIComponent(variantDetails || '')}`, config);
                 setCartItems(res.data);
             } catch (error) {
                 console.error("Error removing from DB cart", error);
             }
         } else {
-            setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
+            setCartItems((prev) => prev.filter((item) => !(item.product.id === productId && item.variantDetails === variantDetails)));
         }
     };
 

@@ -8,18 +8,16 @@ import Navbar from "./Navbar.jsx";
 
 export default function CartPage() {
     const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
-    const { user, loading } = useAuth(); // Firebase user
+    const { user, loading } = useAuth();
 
     const [email, setEmail] = useState('');
     const [address, setAddress] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const navigate = useNavigate();
-// Add this at the top of your CartPage component
-    // In CartPage.jsx
+
     useEffect(() => {
         if (user) {
             setEmail(user.email || user.phoneNumber || '');
-            // Auto-fill their saved address if they have one
             const savedAddress = localStorage.getItem(`address_${user.uid}`);
             if (savedAddress) {
                 setAddress(savedAddress);
@@ -27,14 +25,12 @@ export default function CartPage() {
         }
     }, [user]);
 
-
-
+    // Subtotal automatically uses dynamic variant price if applied in ProductPage
     const subtotal = cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0);
     const shipping = subtotal > 0 ? 500 : 0;
     const total = subtotal + shipping;
 
     const handleCheckout = async () => {
-        // Use user email if available, otherwise fallback to manual input
         const contactInfo = user ? (user.email || user.phoneNumber) : email;
 
         if (!contactInfo) {
@@ -53,12 +49,13 @@ export default function CartPage() {
             shippingAddress: address,
             items: cartItems.map(item => ({
                 productId: item.product.id,
-                quantity: item.quantity
+                quantity: item.quantity,
+                // CRITICAL: Send the exact Variant ID to the backend checkout
+                variantId: item.product.selectedVariantId || null
             }))
         };
 
         const headers = {};
-        // CRITICAL: Only send Firebase token, NOT Admin JWT
         if (user) {
             try {
                 const token = await user.getIdToken();
@@ -76,7 +73,8 @@ export default function CartPage() {
             let text = `Hello! I have placed an order.\n\n*Order ID:* #${orderId}\n*Contact:* ${contactInfo}\n*Address:* ${address}\n\n`;
 
             cartItems.forEach(item => {
-                text += `- ${item.quantity}x ${item.product.name} (₹${item.product.price})\n`;
+                const variantText = item.variantDetails ? ` [${item.variantDetails}]` : '';
+                text += `- ${item.quantity}x ${item.product.name}${variantText} (₹${item.product.price})\n`;
             });
 
             text += `\n*Total:* ₹${total}`;
@@ -114,10 +112,11 @@ export default function CartPage() {
                         {cartItems.length === 0 ? (
                             <div className="text-zinc-500 font-mono text-sm py-8">[ cart is empty ]</div>
                         ) : (
-                            cartItems.map(item => (
-                                <div key={item.product.id} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center py-6 border-b border-zinc-100 relative group">
+                            cartItems.map((item, index) => (
+                                // Use index/variant details in the key to prevent React rendering bugs with duplicate product IDs
+                                <div key={`${item.product.id}-${item.variantDetails || index}`} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center py-6 border-b border-zinc-100 relative group">
                                     <div className="col-span-1 md:col-span-6 flex items-center gap-6">
-                                        <button onClick={() => removeFromCart(item.product.id)} className="absolute top-6 right-0 md:static text-zinc-300 hover:text-red-500 transition-colors">
+                                        <button onClick={() => removeFromCart(item.product.id, item.variantDetails)} className="absolute top-6 right-0 md:static text-zinc-300 hover:text-red-500 transition-colors">
                                             <Trash2 className="w-5 h-5" />
                                         </button>
                                         <div className="w-24 h-24 rounded-2xl border border-zinc-100 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 p-3 mix-blend-multiply">
@@ -127,7 +126,15 @@ export default function CartPage() {
                                                 <span className="text-[10px] font-mono text-zinc-400">no_img</span>
                                             )}
                                         </div>
-                                        <span className="font-bold text-slate-900 leading-tight">{item.product.name}</span>
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-slate-900 leading-tight">{item.product.name}</span>
+                                            {/* Render Variant Details */}
+                                            {item.variantDetails && (
+                                                <span className="text-[11px] font-bold text-blue-500 mt-1 uppercase tracking-wide">
+                                                    {item.variantDetails}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="col-span-1 md:col-span-2 md:text-center text-slate-500 font-medium text-sm">
@@ -136,11 +143,11 @@ export default function CartPage() {
 
                                     <div className="col-span-1 md:col-span-2 flex justify-start md:justify-center">
                                         <div className="flex items-center border border-slate-200 rounded-full bg-slate-50 h-10 px-1">
-                                            <button onClick={() => updateQuantity(item.product.id, -1)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors text-slate-600 shadow-sm">
+                                            <button onClick={() => updateQuantity(item.product.id, -1, item.variantDetails)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors text-slate-600 shadow-sm">
                                                 <Minus className="w-3 h-3" />
                                             </button>
                                             <span className="w-8 text-center text-sm font-bold text-slate-900">{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.product.id, 1)} disabled={item.quantity >= item.product.stockQuantity} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors text-slate-600 shadow-sm">
+                                            <button onClick={() => updateQuantity(item.product.id, 1, item.variantDetails)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors text-slate-600 shadow-sm">
                                                 <Plus className="w-3 h-3" />
                                             </button>
                                         </div>
@@ -176,13 +183,12 @@ export default function CartPage() {
                                 </div>
                             </div>
 
-                            {/* Show manual email field ONLY if not logged in via Firebase */}
                             <div className="mb-4">
                                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
                                     Contact Information *
                                 </label>
                                 <input
-                                    type="text" // Changed to text to support phone numbers too
+                                    type="text"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
