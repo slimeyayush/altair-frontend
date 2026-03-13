@@ -44,7 +44,7 @@ const App = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[#00A152] selection:text-white pt-20">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[#00A152] selection:text-white">
             <Navbar />
 
             {/* Hero Section */}
@@ -231,8 +231,8 @@ const App = () => {
                     {/* Brand Column */}
                     <div>
                         <span className="text-xl font-black tracking-tighter text-[#0B2C5A] mb-6 flex items-center gap-2">
-                            <div className="w-6 h-6 bg-[#00A152] rounded-sm flex items-center justify-center">
-                                <Activity className="w-4 h-4 text-white" />
+                            <div className="w-6 h-6 bg-[#00A152] rounded-sm flex items-center justify-center font-black text-white text-xs">
+                                A
                             </div> ALTAIR<span className="text-[#00A152]">.</span>
                         </span>
                         <p className="text-slate-500 mb-6 leading-relaxed font-medium">Providing reliable medical equipment and supplies to healthcare institutions and individuals worldwide since 2012.</p>
