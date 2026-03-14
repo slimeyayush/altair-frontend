@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Minus, Plus, Trash2, ArrowRight, Lock } from 'lucide-react';
+import { Minus, Plus, Trash2, ArrowRight, Lock, MapPin } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from "./Navbar.jsx";
-import LoginModal from "./LoginModal.jsx"; // Make sure to import your modal!
+import LoginModal from "./LoginModal.jsx";
+import LocationPickerModal from "./LocationPickerModal.jsx"; // NEW IMPORT
 
 export default function CartPage() {
     const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -13,12 +14,12 @@ export default function CartPage() {
 
     const [address, setAddress] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // Controls the login prompt
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const [isMapModalOpen, setIsMapModalOpen] = useState(false); // NEW STATE
     const navigate = useNavigate();
 
     useEffect(() => {
         if (user) {
-            // Auto-fill their saved address if they have one
             const savedAddress = localStorage.getItem(`address_${user.uid}`);
             if (savedAddress) {
                 setAddress(savedAddress);
@@ -30,8 +31,15 @@ export default function CartPage() {
     const shipping = subtotal > 0 ? 500 : 0;
     const total = subtotal + shipping;
 
+    // Map confirm handler
+    const handleMapConfirm = (fetchedAddress) => {
+        setAddress(fetchedAddress);
+        if (user) {
+            localStorage.setItem(`address_${user.uid}`, fetchedAddress); // Save for future
+        }
+    };
+
     const handleCheckout = async () => {
-        // Redundant check just in case
         if (!user) {
             setIsLoginModalOpen(true);
             return;
@@ -90,10 +98,10 @@ export default function CartPage() {
     if (loading) return <div className="min-h-screen flex items-center justify-center font-mono">loading_cart...</div>;
 
     return (
-        <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-[#00A152] selection:text-white">
+        <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-[#00A152] selection:text-white">
             <Navbar />
             <div className="max-w-7xl mx-auto px-6 py-12">
-                <Link to="/" className="text-zinc-500 hover:text-[#0B2C5A] text-xs font-bold uppercase tracking-widest mb-8 inline-block transition-colors">
+                <Link to="/" className="text-slate-500 hover:text-[#0B2C5A] text-xs font-bold uppercase tracking-widest mb-8 inline-block transition-colors">
                     &larr; Back to Shop
                 </Link>
 
@@ -104,19 +112,19 @@ export default function CartPage() {
                 <div className="flex flex-col lg:flex-row gap-12">
                     <div className="lg:w-2/3 space-y-4">
                         {cartItems.length === 0 ? (
-                            <div className="text-zinc-500 font-mono text-sm py-8">[ cart is empty ]</div>
+                            <div className="text-slate-500 font-mono text-sm py-8">[ cart is empty ]</div>
                         ) : (
                             cartItems.map((item, index) => (
-                                <div key={`${item.product.id}-${item.variantDetails || index}`} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center py-6 border-b border-zinc-100 relative group">
+                                <div key={`${item.product.id}-${item.variantDetails || index}`} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center py-6 border-b border-slate-100 relative group">
                                     <div className="col-span-1 md:col-span-6 flex items-center gap-6">
-                                        <button onClick={() => removeFromCart(item.product.id, item.variantDetails)} className="absolute top-6 right-0 md:static text-zinc-300 hover:text-red-500 transition-colors">
+                                        <button onClick={() => removeFromCart(item.product.id, item.variantDetails)} className="absolute top-6 right-0 md:static text-slate-300 hover:text-red-500 transition-colors">
                                             <Trash2 className="w-5 h-5" />
                                         </button>
-                                        <div className="w-24 h-24 rounded-2xl border border-zinc-100 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 p-3 mix-blend-multiply">
+                                        <div className="w-24 h-24 rounded-2xl border border-slate-100 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 p-3 mix-blend-multiply">
                                             {item.product.imageUrl ? (
                                                 <img src={item.product.imageUrl} alt={item.product.name} className="object-contain w-full h-full" />
                                             ) : (
-                                                <span className="text-[10px] font-mono text-zinc-400">no_img</span>
+                                                <span className="text-[10px] font-mono text-slate-400">no_img</span>
                                             )}
                                         </div>
                                         <div className="flex flex-col">
@@ -178,13 +186,22 @@ export default function CartPage() {
                             {/* Only show address input if user is logged in */}
                             {user ? (
                                 <div className="mb-6">
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Shipping Address *</label>
+                                    <div className="flex justify-between items-end mb-3">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">Shipping Address *</label>
+                                        <button
+                                            onClick={() => setIsMapModalOpen(true)}
+                                            className="text-[10px] font-bold uppercase tracking-widest text-[#0B2C5A] hover:text-[#00A152] flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded shadow-sm transition-colors"
+                                        >
+                                            <MapPin className="w-3 h-3" /> Select on Map
+                                        </button>
+                                    </div>
+
                                     <textarea
                                         required
                                         value={address}
                                         onChange={(e) => setAddress(e.target.value)}
                                         placeholder="House No, Street, City, State, ZIP"
-                                        rows="3"
+                                        rows="4"
                                         className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl py-3 px-4 focus:outline-none focus:border-[#0B2C5A] focus:ring-4 focus:ring-[#0B2C5A]/5 transition-all text-sm resize-none"
                                     />
                                     <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest">
@@ -222,8 +239,9 @@ export default function CartPage() {
                 </div>
             </div>
 
-            {/* Login Modal */}
+            {/* Modals */}
             <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+            <LocationPickerModal isOpen={isMapModalOpen} onClose={() => setIsMapModalOpen(false)} onConfirm={handleMapConfirm} />
         </div>
     );
 }
