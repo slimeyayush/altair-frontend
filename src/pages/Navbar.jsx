@@ -145,9 +145,9 @@ export default function Navbar() {
                         </div>
                     </div>
                 </div>
+            </header> {/* <-- MODAL WAS HERE, I MOVED IT BELOW THIS LINE */}
 
-                <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
-            </header>
+            <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
 
             {/* FLOATING LOGOUT BUTTON */}
             {user && (
