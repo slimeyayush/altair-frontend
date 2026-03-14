@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { auth } from '../firebase'; // Adjust path based on your folder structure
+import { auth } from '../firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -9,11 +10,22 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // This listener fires automatically whenever the user logs in or logs out
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
             setLoading(false);
+
+            if (currentUser) {
+                try {
+                    const token = await currentUser.getIdToken();
+                    await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/customer/sync`, {}, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                } catch (error) {
+                    console.error("Failed to sync customer to database:", error);
+                }
+            }
         });
+
         return unsubscribe;
     }, []);
 
@@ -28,4 +40,5 @@ export function AuthProvider({ children }) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Package, ShoppingBag, Check, PlusCircle, LogOut, UserPlus, Eye, EyeOff, Edit2, X, Trash2, Search, Filter, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Package, ShoppingBag, Check, PlusCircle, LogOut, UserPlus, Eye, EyeOff, Edit2, X, Trash2, Search, Filter, XCircle, Users } from 'lucide-react';
 
 export default function AdminDashboard() {
     const CATEGORY_OPTIONS = [
@@ -13,20 +13,19 @@ export default function AdminDashboard() {
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
     const [admins, setAdmins] = useState([]);
+    const [customers, setCustomers] = useState([]);
     const navigate = useNavigate();
 
-    // Search and Filter states for Orders
     const [orderSearchTerm, setOrderSearchTerm] = useState('');
     const [orderStatusFilter, setOrderStatusFilter] = useState('ALL');
-
-    // State for the Order Details Modal
     const [viewingOrder, setViewingOrder] = useState(null);
 
     const token = localStorage.getItem('adminToken');
     const axiosConfig = { headers: { 'Authorization': `Bearer ${token}` } };
 
+    // UPDATED: Added brand to initial state
     const initialProductState = {
-        name: '', description: '', price: '', oldPrice: '', stockQuantity: '', category: '', tag: '', imageUrl: '',
+        name: '', brand: '', description: '', price: '', oldPrice: '', stockQuantity: '', category: '', tag: '', imageUrl: '',
         additionalImages: [], variants: []
     };
 
@@ -59,6 +58,9 @@ export default function AdminDashboard() {
             } else if (activeTab === 'add-admin') {
                 const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/admins`, axiosConfig);
                 setAdmins(res.data);
+            } else if (activeTab === 'customers') {
+                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/customers`, axiosConfig);
+                setCustomers(res.data);
             }
         } catch (error) {
             handleError(error);
@@ -74,7 +76,6 @@ export default function AdminDashboard() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab, navigate, token]);
 
-    // --- DYNAMIC ARRAY HANDLERS (Images & Variants) ---
     const handleAddArrayItem = (isEditing, field, defaultObj) => {
         const setter = isEditing ? setEditingProduct : setNewProduct;
         setter(prev => ({ ...prev, [field]: [...(prev[field] || []), defaultObj] }));
@@ -94,7 +95,6 @@ export default function AdminDashboard() {
         });
     };
 
-    // --- ORDER ACTIONS ---
     const handleMarkPaid = async (orderId) => {
         try {
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/orders/${orderId}/mark-paid`, {}, axiosConfig);
@@ -125,7 +125,6 @@ export default function AdminDashboard() {
         }
     };
 
-    // --- INVENTORY ACTIONS ---
     const handleToggleVisibility = async (productId) => {
         try {
             await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/inventory/${productId}/toggle-visibility`, {}, axiosConfig);
@@ -176,7 +175,6 @@ export default function AdminDashboard() {
         } catch (error) { handleError(error); }
     };
 
-    // --- ADMIN ACTIONS ---
     const handleDeleteAdmin = async (id, username) => {
         if (!window.confirm(`Are you sure you want to delete admin '${username}'?`)) return;
         try {
@@ -201,7 +199,6 @@ export default function AdminDashboard() {
     const handleProductInputChange = (e) => setNewProduct(prev => ({ ...prev, [e.target.name]: e.target.value }));
     const handleAdminInputChange = (e) => setNewAdmin(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
-    // --- FILTER LOGIC FOR ORDERS ---
     const filteredOrders = orders.filter(order => {
         const matchesSearch = order.customerEmail?.toLowerCase().includes(orderSearchTerm.toLowerCase());
         const matchesStatus = orderStatusFilter === 'ALL' || order.status === orderStatusFilter;
@@ -210,12 +207,14 @@ export default function AdminDashboard() {
 
     return (
         <div className="min-h-screen bg-black text-zinc-50 font-sans flex relative">
-            {/* Sidebar */}
             <aside className="w-64 bg-zinc-950 border-r border-zinc-900 p-6 flex flex-col hidden md:flex shrink-0">
                 <div className="text-2xl font-black text-white tracking-tighter mb-12">admin.</div>
                 <nav className="space-y-4 flex-1">
                     <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'orders' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}>
                         <ShoppingBag className="w-5 h-5" /> Orders
+                    </button>
+                    <button onClick={() => setActiveTab('customers')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'customers' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}>
+                        <Users className="w-5 h-5" /> Customers
                     </button>
                     <button onClick={() => setActiveTab('inventory')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'inventory' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}>
                         <Package className="w-5 h-5" /> Inventory
@@ -235,6 +234,7 @@ export default function AdminDashboard() {
             <main className="flex-1 p-8 md:p-12 overflow-y-auto">
                 <h1 className="text-3xl font-black mb-8 tracking-tighter uppercase">
                     {activeTab === 'orders' && 'Order Management'}
+                    {activeTab === 'customers' && 'Customer Directory'}
                     {activeTab === 'inventory' && 'Inventory Management'}
                     {activeTab === 'add-product' && 'Add New Product'}
                     {activeTab === 'add-admin' && 'Admin Management'}
@@ -344,6 +344,38 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
+                {/* Customers Tab */}
+                {activeTab === 'customers' && (
+                    <div className="overflow-x-auto border border-zinc-900 rounded-xl">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
+                            <thead className="bg-zinc-950 text-zinc-400 font-mono uppercase text-xs">
+                            <tr>
+                                <th className="p-4 border-b border-zinc-900">ID</th>
+                                <th className="p-4 border-b border-zinc-900">Email</th>
+                                <th className="p-4 border-b border-zinc-900">Phone</th>
+                                <th className="p-4 border-b border-zinc-900">Total Orders</th>
+                            </tr>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-900">
+                            {customers.length === 0 ? (
+                                <tr><td colSpan="4" className="p-8 text-center text-zinc-500 font-mono">No customers found.</td></tr>
+                            ) : (
+                                customers.map(customer => (
+                                    <tr key={customer.id} className="hover:bg-zinc-900/50 transition-colors">
+                                        <td className="p-4 font-mono text-zinc-400">#{customer.id}</td>
+                                        <td className="p-4 font-bold text-white">{customer.email || '-'}</td>
+                                        <td className="p-4 font-bold text-white">{customer.phoneNumber || '-'}</td>
+                                        <td className="p-4 font-mono text-zinc-400">
+                                            {customer.orders ? customer.orders.length : 0}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
                 {/* Inventory Tab */}
                 {activeTab === 'inventory' && (
                     <div className="overflow-x-auto border border-zinc-900 rounded-xl">
@@ -352,8 +384,8 @@ export default function AdminDashboard() {
                             <tr>
                                 <th className="p-4 border-b border-zinc-900">ID</th>
                                 <th className="p-4 border-b border-zinc-900">Name</th>
+                                <th className="p-4 border-b border-zinc-900">Brand</th>
                                 <th className="p-4 border-b border-zinc-900">Status</th>
-                                <th className="p-4 border-b border-zinc-900">Stock Update</th>
                                 <th className="p-4 border-b border-zinc-900 text-right">Actions</th>
                             </tr>
                             </thead>
@@ -362,16 +394,11 @@ export default function AdminDashboard() {
                                 <tr key={product.id} className={`hover:bg-zinc-900/50 transition-colors ${!product.active ? 'opacity-50' : ''}`}>
                                     <td className="p-4 font-mono text-zinc-500">#{product.id}</td>
                                     <td className="p-4 font-bold text-white truncate max-w-[200px]">{product.name}</td>
+                                    <td className="p-4 text-zinc-400">{product.brand || '-'}</td>
                                     <td className="p-4">
                                         <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-widest ${product.active ? 'bg-green-900/30 text-green-500' : 'bg-zinc-800 text-zinc-400'}`}>
                                             {product.active ? 'Active' : 'Archived'}
                                         </span>
-                                    </td>
-                                    <td className="p-4 flex gap-2">
-                                        <input type="number" defaultValue={product.stockQuantity} id={`stock-${product.id}`} className="w-16 bg-zinc-950 border border-zinc-800 text-white text-sm rounded p-1 text-center focus:outline-none focus:border-white" />
-                                        <button onClick={() => handleStockUpdate(product.id, document.getElementById(`stock-${product.id}`).value)} className="bg-zinc-800 text-white p-1.5 rounded hover:bg-white hover:text-black transition-colors" title="Save Stock">
-                                            <Check className="w-4 h-4" />
-                                        </button>
                                     </td>
                                     <td className="p-4 text-right">
                                         <div className="flex justify-end gap-2">
@@ -402,6 +429,10 @@ export default function AdminDashboard() {
                                 <input required type="text" name="name" value={newProduct.name} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
                             <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Brand</label>
+                                <input type="text" name="brand" value={newProduct.brand} onChange={handleProductInputChange} placeholder="e.g. ResMed, Philips" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+                            <div className="md:col-span-2">
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Description *</label>
                                 <textarea required name="description" value={newProduct.description} onChange={handleProductInputChange} rows="3" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white"></textarea>
                             </div>
@@ -426,7 +457,6 @@ export default function AdminDashboard() {
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Main Image URL</label>
-                                {/* CHANGED TO TYPE TEXT */}
                                 <input type="text" name="imageUrl" value={newProduct.imageUrl} onChange={handleProductInputChange} placeholder="https://..." className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
 
@@ -440,7 +470,6 @@ export default function AdminDashboard() {
                                 </div>
                                 {newProduct.additionalImages?.map((img, idx) => (
                                     <div key={idx} className="flex items-center gap-3 mb-3">
-                                        {/* CHANGED TO TYPE TEXT */}
                                         <input type="text" required value={img.imageUrl || ''} onChange={(e) => handleArrayItemChange(false, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-950 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
                                         <button type="button" onClick={() => handleRemoveArrayItem(false, 'additionalImages', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-950 border border-zinc-800 rounded-lg transition-colors"><X className="w-4 h-4" /></button>
                                     </div>
@@ -534,8 +563,6 @@ export default function AdminDashboard() {
             {viewingOrder && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
-
-                        {/* Header */}
                         <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 rounded-t-2xl shrink-0">
                             <div>
                                 <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-3">
@@ -555,7 +582,6 @@ export default function AdminDashboard() {
                             </button>
                         </div>
 
-                        {/* Scrollable Content */}
                         <div className="p-6 overflow-y-auto space-y-6">
                             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                                 <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Customer Details</h3>
@@ -573,7 +599,6 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
 
-                            {/* Products List (UPDATED TO SHOW VARIANTS) */}
                             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                                 <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Products Ordered</h3>
                                 {viewingOrder.items && viewingOrder.items.length > 0 ? (
@@ -582,7 +607,6 @@ export default function AdminDashboard() {
                                             <li key={idx} className="py-4 flex justify-between items-center group">
                                                 <div className="flex flex-col pr-4">
                                                     <span className="text-white font-bold mb-1 line-clamp-2">{item.product?.name || 'Unknown Product'}</span>
-                                                    {/* Inject variant details here if present */}
                                                     {item.productVariant && (
                                                         <span className="text-[11px] font-bold text-blue-400 mb-1">
                                                             [ {item.productVariant.variantType} - {item.productVariant.variantSize} ]
@@ -604,7 +628,6 @@ export default function AdminDashboard() {
                             </div>
                         </div>
 
-                        {/* Sticky Footer Total */}
                         <div className="p-6 bg-zinc-900/80 border-t border-zinc-800 rounded-b-2xl flex justify-between items-center shrink-0">
                             <span className="text-zinc-400 font-bold uppercase tracking-widest text-sm">Total Amount</span>
                             <span className="text-2xl font-black text-white">₹{viewingOrder.totalAmount?.toLocaleString('en-IN')}</span>
@@ -628,6 +651,10 @@ export default function AdminDashboard() {
                             <div className="md:col-span-2">
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Product Name</label>
                                 <input required type="text" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Brand</label>
+                                <input type="text" value={editingProduct.brand || ''} onChange={e => setEditingProduct({...editingProduct, brand: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Description</label>
@@ -654,7 +681,6 @@ export default function AdminDashboard() {
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Main Image URL</label>
-                                {/* CHANGED TO TYPE TEXT */}
                                 <input type="text" value={editingProduct.imageUrl || ''} onChange={e => setEditingProduct({...editingProduct, imageUrl: e.target.value})} placeholder="https://..." className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
                             </div>
 
@@ -668,7 +694,6 @@ export default function AdminDashboard() {
                                 </div>
                                 {editingProduct.additionalImages?.map((img, idx) => (
                                     <div key={idx} className="flex items-center gap-3 mb-3">
-                                        {/* CHANGED TO TYPE TEXT */}
                                         <input type="text" required value={img.imageUrl || ''} onChange={(e) => handleArrayItemChange(true, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-900 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
                                         <button type="button" onClick={() => handleRemoveArrayItem(true, 'additionalImages', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-900 border border-zinc-800 rounded-lg transition-colors"><X className="w-4 h-4" /></button>
                                     </div>
