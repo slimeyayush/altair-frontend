@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Mail, Phone, ArrowRight } from 'lucide-react';
 import { auth, googleProvider } from '../firebase';
-import { RecaptchaVerifier, signInWithPopup, signInWithPhoneNumber } from 'firebase/auth'; // Adjust path if needed
+import { RecaptchaVerifier, signInWithPopup, signInWithPhoneNumber } from 'firebase/auth';
 
 export default function LoginModal({ isOpen, onClose }) {
     const [authMode, setAuthMode] = useState('select'); // 'select', 'phone', 'otp'
@@ -11,30 +11,13 @@ export default function LoginModal({ isOpen, onClose }) {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Initialize reCAPTCHA for phone auth
-    // Initialize reCAPTCHA only when the modal is open and the DOM is ready
-    useEffect(() => {
-        if (isOpen && !window.recaptchaVerifier) {
-            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                size: 'invisible',
-                callback: () => {
-                    // reCAPTCHA solved
-                }
-            });
-        }
-    }, [isOpen]);
-
     if (!isOpen) return null;
 
     const handleGoogleLogin = async () => {
         try {
             setIsLoading(true);
             setError('');
-            const result = await signInWithPopup(auth, googleProvider);
-            const token = await result.user.getIdToken();
-
-            // Temporary log to prove it works. We will send this to Java later.
-
+            await signInWithPopup(auth, googleProvider);
             onClose();
         } catch (err) {
             setError(err.message);
@@ -43,22 +26,48 @@ export default function LoginModal({ isOpen, onClose }) {
         }
     };
 
+    const setupRecaptcha = () => {
+        // Destroy existing instance to prevent DOM conflicts
+        if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.clear();
+            window.recaptchaVerifier = null;
+        }
+
+        // Initialize fresh instance
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            size: 'invisible',
+            callback: () => {
+                // reCAPTCHA solved automatically
+            }
+        });
+    };
+
     const handleSendOTP = async (e) => {
         e.preventDefault();
         try {
             setIsLoading(true);
             setError('');
-            // Phone number must include country code, e.g., +919876543210
-            const formattedNumber = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
 
+            // Clean input: remove spaces and enforce E.164 format
+            let cleanNumber = phoneNumber.trim().replace(/\s+/g, '');
+            const formattedNumber = cleanNumber.startsWith('+') ? cleanNumber : `+91${cleanNumber}`;
+
+            setupRecaptcha();
             const appVerifier = window.recaptchaVerifier;
-            const confirmation = await signInWithPhoneNumber(auth, formattedNumber, appVerifier);
 
+            const confirmation = await signInWithPhoneNumber(auth, formattedNumber, appVerifier);
             setConfirmationResult(confirmation);
             setAuthMode('otp');
+
         } catch (err) {
+            console.error("OTP Error:", err);
             setError("Failed to send OTP. Check the number format.");
-            console.error(err);
+
+            // Reset reCAPTCHA on failure so the user can try again
+            if (window.recaptchaVerifier) {
+                window.recaptchaVerifier.clear();
+                window.recaptchaVerifier = null;
+            }
         } finally {
             setIsLoading(false);
         }
@@ -69,13 +78,10 @@ export default function LoginModal({ isOpen, onClose }) {
         try {
             setIsLoading(true);
             setError('');
-            const result = await confirmationResult.confirm(otp);
-            const token = await result.user.getIdToken();
-
-            // Temporary log to prove it works.
-            console.log("Phone Token:", token);
+            await confirmationResult.confirm(otp);
             onClose();
         } catch (err) {
+            console.error("OTP Verification Error:", err); // <-- Used the variable here
             setError("Invalid OTP.");
         } finally {
             setIsLoading(false);
