@@ -17,9 +17,15 @@ export default function LoginModal({ isOpen, onClose }) {
         try {
             setIsLoading(true);
             setError('');
-            await signInWithPopup(auth, googleProvider);
+            const result = await signInWithPopup(auth, googleProvider);
+            const token = await result.user.getIdToken();
+
+            // Temporary log to prove it works. We will send this to Java later.
+            console.log("Google Token:", token);
+
             onClose();
         } catch (err) {
+            console.error("Google Login Error:", err);
             setError(err.message);
         } finally {
             setIsLoading(false);
@@ -78,10 +84,14 @@ export default function LoginModal({ isOpen, onClose }) {
         try {
             setIsLoading(true);
             setError('');
-            await confirmationResult.confirm(otp);
+            const result = await confirmationResult.confirm(otp);
+            const token = await result.user.getIdToken();
+
+            console.log("Phone Token:", token);
+
             onClose();
         } catch (err) {
-            console.error("OTP Verification Error:", err); // <-- Used the variable here
+            console.error("OTP Verification Error:", err);
             setError("Invalid OTP.");
         } finally {
             setIsLoading(false);
