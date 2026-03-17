@@ -111,50 +111,6 @@ const App = () => {
                         </div>
                     </div>
                 </section>
-
-                {/* Trusted By Strip */}
-                <section className="border-b border-zinc-200 bg-zinc-50 py-6">
-                    <div className="mx-auto max-w-6xl px-6">
-                        <div className="flex flex-col md:flex-row items-center gap-6 md:justify-between">
-                            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Trusted by leading institutions</p>
-                            <div className="flex flex-wrap items-center justify-center gap-8">
-                                {trustedBy.map((name) => (
-                                    <span key={name} className="text-sm font-bold text-zinc-400">
-                                        {name}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Features Grid */}
-                <section className="py-20 bg-white">
-                    <div className="mx-auto max-w-6xl px-6">
-                        <div className="mx-auto max-w-xl text-center mb-16">
-                            <h2 className="text-3xl font-black tracking-tight text-black mb-4">
-                                Why Healthcare Leaders Choose ALTAIR
-                            </h2>
-                            <p className="text-sm font-medium text-zinc-500">
-                                We combine innovation with reliability to deliver equipment you can trust.
-                            </p>
-                        </div>
-                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                            {features.map((feature) => (
-                                <div key={feature.title} className="group rounded-xl border border-zinc-200 bg-white p-6 transition-all hover:border-black hover:shadow-lg hover:-translate-y-1">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100 text-black mb-6 group-hover:bg-black group-hover:text-white transition-colors">
-                                        <feature.icon className="h-6 w-6" />
-                                    </div>
-                                    <h3 className="text-base font-black text-black mb-2">{feature.title}</h3>
-                                    <p className="text-sm font-medium leading-relaxed text-zinc-500">
-                                        {feature.description}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
                 {/* Categories (Updated to strictly match Reference UI) */}
                 {categoryData.length > 0 && (
                     <section className="bg-zinc-50 py-20 border-t border-zinc-200">
@@ -205,6 +161,52 @@ const App = () => {
                         </div>
                     </section>
                 )}
+
+                {/* Trusted By Strip */}
+                <section className="border-b border-zinc-200 bg-zinc-50 py-6">
+                    <div className="mx-auto max-w-6xl px-6">
+                        <div className="flex flex-col md:flex-row items-center gap-6 md:justify-between">
+                            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Trusted by leading institutions</p>
+                            <div className="flex flex-wrap items-center justify-center gap-8">
+                                {trustedBy.map((name) => (
+                                    <span key={name} className="text-sm font-bold text-zinc-400">
+                                        {name}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Features Grid */}
+                <section className="py-20 bg-white">
+                    <div className="mx-auto max-w-6xl px-6">
+                        <div className="mx-auto max-w-xl text-center mb-16">
+                            <h2 className="text-3xl font-black tracking-tight text-black mb-4">
+                                Why Healthcare Leaders Choose ALTAIR
+                            </h2>
+                            <p className="text-sm font-medium text-zinc-500">
+                                We combine innovation with reliability to deliver equipment you can trust.
+                            </p>
+                        </div>
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            {features.map((feature) => (
+                                <div key={feature.title} className="group rounded-xl border border-zinc-200 bg-white p-6 transition-all hover:border-black hover:shadow-lg hover:-translate-y-1">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100 text-black mb-6 group-hover:bg-black group-hover:text-white transition-colors">
+                                        <feature.icon className="h-6 w-6" />
+                                    </div>
+                                    <h3 className="text-base font-black text-black mb-2">{feature.title}</h3>
+                                    <p className="text-sm font-medium leading-relaxed text-zinc-500">
+                                        {feature.description}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+
+
 
                 {/* Featured Products */}
                 <section className="max-w-7xl mx-auto px-6 py-20 bg-white">
