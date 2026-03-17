@@ -111,6 +111,21 @@ const App = () => {
                         </div>
                     </div>
                 </section>
+                {/* Trusted By Strip */}
+                <section className="border-b border-zinc-200 bg-zinc-50 py-6">
+                    <div className="mx-auto max-w-6xl px-6">
+                        <div className="flex flex-col md:flex-row items-center gap-6 md:justify-between">
+                            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Trusted by leading institutions</p>
+                            <div className="flex flex-wrap items-center justify-center gap-8">
+                                {trustedBy.map((name) => (
+                                    <span key={name} className="text-sm font-bold text-zinc-400">
+                                        {name}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
                 {/* Categories (Updated to strictly match Reference UI) */}
                 {categoryData.length > 0 && (
                     <section className="bg-zinc-50 py-20 border-t border-zinc-200">
@@ -162,21 +177,8 @@ const App = () => {
                     </section>
                 )}
 
-                {/* Trusted By Strip */}
-                <section className="border-b border-zinc-200 bg-zinc-50 py-6">
-                    <div className="mx-auto max-w-6xl px-6">
-                        <div className="flex flex-col md:flex-row items-center gap-6 md:justify-between">
-                            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Trusted by leading institutions</p>
-                            <div className="flex flex-wrap items-center justify-center gap-8">
-                                {trustedBy.map((name) => (
-                                    <span key={name} className="text-sm font-bold text-zinc-400">
-                                        {name}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </section>
+
+
 
                 {/* Features Grid */}
                 <section className="py-20 bg-white">

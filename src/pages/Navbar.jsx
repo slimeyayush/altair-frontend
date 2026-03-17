@@ -1,4 +1,4 @@
-"use client"
+
 
 import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, User, Menu, X, LogOut } from 'lucide-react';
