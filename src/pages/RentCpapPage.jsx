@@ -1,96 +1,223 @@
-import React from 'react';
-import { Check, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import Navbar from "./Navbar.jsx";
+import Link from "next/link"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
+import { ArrowRight, Calendar, User, Clock } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
-export default function RentCpapPage() {
-    const handleRentRequest = () => {
-        const phoneNumber = "918800537507"; // Your established WhatsApp number
-        const text = `Hello! I am interested in renting the Auto CPAP Machine.\n\nPlease share the availability and documentation requirements.`;
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
-        window.open(whatsappUrl, '_blank');
-    };
+const featuredPost = {
+    id: 1,
+    title: "The Future of AI-Powered Diagnostics in Healthcare",
+    excerpt: "Exploring how artificial intelligence is revolutionizing medical diagnosis and patient care, from early detection to personalized treatment plans.",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1200&h=600&fit=crop",
+    category: "Innovation",
+    author: "Dr. Sarah Chen",
+    date: "March 15, 2026",
+    readTime: "8 min read",
+}
 
+const blogPosts = [
+    {
+        id: 2,
+        title: "Best Practices for Medical Equipment Maintenance",
+        excerpt: "Learn how to extend the lifespan of your medical equipment with proper maintenance protocols and regular servicing schedules.",
+        image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&h=400&fit=crop",
+        category: "Maintenance",
+        author: "Michael Torres",
+        date: "March 10, 2026",
+        readTime: "5 min read",
+    },
+    {
+        id: 3,
+        title: "Understanding FDA Medical Device Regulations",
+        excerpt: "A comprehensive guide to navigating FDA approval processes and compliance requirements for medical devices.",
+        image: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=600&h=400&fit=crop",
+        category: "Compliance",
+        author: "James Mitchell",
+        date: "March 5, 2026",
+        readTime: "10 min read",
+    },
+    {
+        id: 4,
+        title: "Telemedicine Equipment Essentials for 2026",
+        excerpt: "Discover the must-have equipment for establishing or upgrading your telemedicine capabilities this year.",
+        image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop",
+        category: "Telemedicine",
+        author: "Dr. Emily Park",
+        date: "February 28, 2026",
+        readTime: "6 min read",
+    },
+    {
+        id: 5,
+        title: "Sustainable Practices in Medical Equipment Manufacturing",
+        excerpt: "How the medical equipment industry is embracing sustainability without compromising quality or safety standards.",
+        image: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=600&h=400&fit=crop",
+        category: "Sustainability",
+        author: "Dr. Sarah Chen",
+        date: "February 20, 2026",
+        readTime: "7 min read",
+    },
+    {
+        id: 6,
+        title: "Training Staff on New Medical Technology",
+        excerpt: "Effective strategies for onboarding your healthcare team when implementing new medical equipment and systems.",
+        image: "https://images.unsplash.com/photo-1551076805-e1869033e561?w=600&h=400&fit=crop",
+        category: "Training",
+        author: "Michael Torres",
+        date: "February 15, 2026",
+        readTime: "4 min read",
+    },
+]
+
+const categories = ["All", "Innovation", "Maintenance", "Compliance", "Telemedicine", "Sustainability", "Training"]
+
+export default function BlogPage() {
     return (
-        <div className="min-h-screen bg-white text-zinc-900 font-sans ">
-            <Navbar />
-            <div className="max-w-7xl mx-auto px-6">
-                <Link to="/" className="text-zinc-500 hover:text-black text-xs font-bold uppercase tracking-widest mb-8 inline-block transition-colors">
-                    &larr; Back to Shop
-                </Link>
+        <div className="flex min-h-screen flex-col">
+            <Header />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-                    {/* Image Section */}
-                    <div className="aspect-square bg-zinc-50 border border-zinc-200 rounded-3xl flex items-center justify-center p-8 sticky top-32">
-                        {/* Replace src with your actual CPAP image path */}
-                        <img
-                            src="/cpap-machine.png"
-                            alt="Auto CPAP Machine"
-                            className="w-auto max-w-full h-auto object-contain mix-blend-multiply"
-                            onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'block';
-                            }}
-                        />
-                        <span className="text-zinc-400 font-mono text-sm hidden">[ cpap_image_placeholder ]</span>
+            <main className="flex-1">
+                {/* Hero */}
+                <section className="bg-muted/30 py-12">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Blog & Insights</h1>
+                        <p className="mt-2 text-lg text-muted-foreground">
+                            Stay updated with the latest in medical technology and healthcare innovation
+                        </p>
                     </div>
+                </section>
 
-                    {/* Details Section */}
-                    <div className="flex flex-col justify-center py-8">
-                        <div className="inline-block bg-zinc-100 text-black text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-6 w-max">
-                            Rental Service • Delhi NCR
-                        </div>
-
-                        <h1 className="text-4xl md:text-5xl font-black mb-6 tracking-tighter lowercase">auto cpap rental.</h1>
-
-                        <div className="flex items-baseline gap-4 mb-8">
-                            <span className="text-4xl font-black tracking-tighter">₹4,500</span>
-                            <span className="text-zinc-500 font-medium text-sm uppercase tracking-widest">/ month</span>
-                        </div>
-
-                        <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-6 mb-8">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4">Terms & Deposit</h3>
-                            <div className="flex justify-between items-center text-sm font-medium border-b border-zinc-200 pb-3 mb-3">
-                                <span className="text-zinc-600">Refundable Security Deposit</span>
-                                <span className="text-black">₹15,000</span>
+                {/* Featured Post */}
+                <section className="py-12">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <Link href={`/blog/${featuredPost.id}`} className="group block">
+                            <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+                                <div className="overflow-hidden rounded-xl">
+                                    <img
+                                        src={featuredPost.image}
+                                        alt={featuredPost.title}
+                                        className="aspect-[16/9] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    />
+                                </div>
+                                <div>
+                                    <Badge variant="secondary">{featuredPost.category}</Badge>
+                                    <h2 className="mt-4 text-2xl font-bold tracking-tight group-hover:text-accent sm:text-3xl">
+                                        {featuredPost.title}
+                                    </h2>
+                                    <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+                                        {featuredPost.excerpt}
+                                    </p>
+                                    <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <User className="h-4 w-4" />
+                        {featuredPost.author}
+                    </span>
+                                        <span className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                                            {featuredPost.date}
+                    </span>
+                                        <span className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                                            {featuredPost.readTime}
+                    </span>
+                                    </div>
+                                    <div className="mt-6">
+                    <span className="inline-flex items-center font-medium text-foreground group-hover:text-accent">
+                      Read Article
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex justify-between items-center text-sm font-medium">
-                                <span className="text-zinc-600">Minimum Rental Period</span>
-                                <span className="text-black">1 Month</span>
-                            </div>
-                        </div>
+                        </Link>
+                    </div>
+                </section>
 
-                        <div className="mb-10">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4">What's Included</h3>
-                            <ul className="space-y-4">
-                                {[
-                                    'Auto CPAP Machine (ResMed / Philips)',
-                                    'Heated Humidifier',
-                                    'Standard CPAP Mask (Nasal/Full Face)',
-                                    'Standard Breathing Tube',
-                                    'Power Adapter & Filters'
-                                ].map((item, idx) => (
-                                    <li key={idx} className="flex items-center gap-4 text-sm font-medium text-black">
-                                        <div className="w-6 h-6 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0">
-                                            <Check className="w-3 h-3 text-black" />
+                {/* Categories */}
+                <section className="border-b border-border">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="flex gap-2 overflow-x-auto py-4 scrollbar-hide">
+                            {categories.map((category) => (
+                                <button
+                                    key={category}
+                                    className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                                        category === "All"
+                                            ? "bg-primary text-primary-foreground"
+                                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                    }`}
+                                >
+                                    {category}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Blog Posts Grid */}
+                <section className="py-12">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <h2 className="text-xl font-semibold">Latest Articles</h2>
+                        <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                            {blogPosts.map((post) => (
+                                <Link
+                                    key={post.id}
+                                    href={`/blog/${post.id}`}
+                                    className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-accent hover:shadow-lg"
+                                >
+                                    <div className="overflow-hidden">
+                                        <img
+                                            src={post.image}
+                                            alt={post.title}
+                                            className="aspect-[3/2] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                    </div>
+                                    <div className="flex flex-1 flex-col p-5">
+                                        <Badge variant="secondary" className="w-fit">{post.category}</Badge>
+                                        <h3 className="mt-3 font-semibold leading-snug group-hover:text-accent">
+                                            {post.title}
+                                        </h3>
+                                        <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                                            {post.excerpt}
+                                        </p>
+                                        <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>{post.author}</span>
+                                            <span>{post.readTime}</span>
                                         </div>
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
-
-                        <button
-                            onClick={handleRentRequest}
-                            className="w-full flex items-center justify-center gap-3 bg-black hover:bg-zinc-800 text-white font-black py-4 rounded-full transition-colors uppercase text-xs tracking-widest"
-                        >
-                            Request via WhatsApp
-                            <ArrowRight className="w-4 h-4" />
-                        </button>
-                        <p className="text-center text-zinc-500 text-xs mt-4 font-medium">Valid ID proof and medical prescription required.</p>
                     </div>
-                </div>
-            </div>
+                </section>
+
+                {/* Newsletter */}
+                <section className="bg-primary py-16">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mx-auto max-w-2xl text-center">
+                            <h2 className="text-2xl font-bold text-primary-foreground sm:text-3xl">
+                                Subscribe to Our Newsletter
+                            </h2>
+                            <p className="mt-4 text-primary-foreground/80">
+                                Get the latest healthcare insights, product updates, and industry news delivered to your inbox.
+                            </p>
+                            <form className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+                                <input
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    className="h-11 rounded-lg border-0 bg-primary-foreground px-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:w-80"
+                                />
+                                <button
+                                    type="submit"
+                                    className="h-11 rounded-lg bg-foreground px-6 font-medium text-background transition-colors hover:bg-foreground/90"
+                                >
+                                    Subscribe
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <Footer />
         </div>
-    );
+    )
 }
