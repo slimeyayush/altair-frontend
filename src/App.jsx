@@ -155,7 +155,7 @@ const App = () => {
                     </div>
                 </section>
 
-                {/* Categories */}
+                {/* Categories (Updated to strictly match Reference UI) */}
                 {categoryData.length > 0 && (
                     <section className="bg-zinc-50 py-20 border-t border-zinc-200">
                         <div className="mx-auto max-w-7xl px-6">
@@ -174,24 +174,24 @@ const App = () => {
                                     <Link
                                         key={idx}
                                         to={`/shop?category=${encodeURIComponent(category.name)}`}
-                                        className="group relative overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition-all duration-500"
+                                        className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-white"
                                     >
-                                        <div className="aspect-[4/5] md:aspect-square overflow-hidden bg-white">
+                                        <div className="aspect-square overflow-hidden bg-zinc-100">
                                             {category.imageUrl ? (
                                                 <img
                                                     src={category.imageUrl}
                                                     alt={category.name}
-                                                    className="h-full w-full object-cover grayscale transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0"
+                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                 />
                                             ) : (
-                                                <div className="h-full w-full bg-zinc-200 transition-transform duration-700 group-hover:scale-105" />
+                                                <div className="h-full w-full bg-zinc-200 transition-transform duration-500 group-hover:scale-105" />
                                             )}
                                         </div>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                                        <div className="absolute inset-x-0 bottom-0 p-6">
-                                            <h3 className="text-xl font-black text-white leading-tight mb-1">{category.name}</h3>
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">
-                                                Explore &rarr;
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                        <div className="absolute inset-x-0 bottom-0 p-4">
+                                            <h3 className="text-base font-semibold text-white">{category.name}</h3>
+                                            <p className="mt-0.5 text-xs text-white/80">
+                                                Explore collection &rarr;
                                             </p>
                                         </div>
                                     </Link>
