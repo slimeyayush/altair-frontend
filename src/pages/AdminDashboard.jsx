@@ -22,7 +22,7 @@ export default function AdminDashboard() {
 
     // States for Modals
     const [viewingOrder, setViewingOrder] = useState(null);
-    const [viewingCustomerOrders, setViewingCustomerOrders] = useState(null); // NEW: State for viewing a customer's list of orders
+    const [viewingCustomerOrders, setViewingCustomerOrders] = useState(null);
 
     const token = localStorage.getItem('adminToken');
     const axiosConfig = { headers: { 'Authorization': `Bearer ${token}` } };
@@ -214,424 +214,462 @@ export default function AdminDashboard() {
     });
 
     return (
-        <div className="min-h-screen bg-black text-zinc-50 font-sans flex relative">
-            {/* Sidebar */}
-            <aside className="w-64 bg-zinc-950 border-r border-zinc-900 p-6 flex flex-col hidden md:flex shrink-0">
-                <div className="text-2xl font-black text-white tracking-tighter mb-12">admin.</div>
-                <nav className="space-y-4 flex-1">
-                    <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'orders' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}>
-                        <ShoppingBag className="w-5 h-5" /> Orders
+        <div className="min-h-screen bg-zinc-50/50 text-black font-sans flex relative">
+            {/* Sidebar (Sleek, light-theme) */}
+            <aside className="w-64 bg-white border-r border-zinc-200 p-6 flex flex-col hidden md:flex shrink-0">
+                <div className="flex items-center gap-2 mb-10">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-black">
+                        <span className="text-sm font-bold text-white">A</span>
+                    </div>
+                    <span className="text-base font-semibold tracking-tight">ALTAIR Admin</span>
+                </div>
+
+                <nav className="space-y-1.5 flex-1">
+                    <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'orders' ? 'bg-zinc-100 text-black' : 'text-zinc-500 hover:text-black hover:bg-zinc-50'}`}>
+                        <ShoppingBag className="w-4 h-4" /> Orders
                     </button>
-                    <button onClick={() => setActiveTab('customers')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'customers' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}>
-                        <Users className="w-5 h-5" /> Customers
+                    <button onClick={() => setActiveTab('customers')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'customers' ? 'bg-zinc-100 text-black' : 'text-zinc-500 hover:text-black hover:bg-zinc-50'}`}>
+                        <Users className="w-4 h-4" /> Customers
                     </button>
-                    <button onClick={() => setActiveTab('inventory')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'inventory' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}>
-                        <Package className="w-5 h-5" /> Inventory
+                    <button onClick={() => setActiveTab('inventory')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'inventory' ? 'bg-zinc-100 text-black' : 'text-zinc-500 hover:text-black hover:bg-zinc-50'}`}>
+                        <Package className="w-4 h-4" /> Inventory
                     </button>
-                    <button onClick={() => setActiveTab('add-product')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'add-product' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}>
-                        <PlusCircle className="w-5 h-5" /> Add Product
+                    <button onClick={() => setActiveTab('add-product')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'add-product' ? 'bg-zinc-100 text-black' : 'text-zinc-500 hover:text-black hover:bg-zinc-50'}`}>
+                        <PlusCircle className="w-4 h-4" /> Add Product
                     </button>
-                    <button onClick={() => setActiveTab('add-admin')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'add-admin' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}>
-                        <UserPlus className="w-5 h-5" /> Admins
+                    <button onClick={() => setActiveTab('add-admin')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'add-admin' ? 'bg-zinc-100 text-black' : 'text-zinc-500 hover:text-black hover:bg-zinc-50'}`}>
+                        <UserPlus className="w-4 h-4" /> Team
                     </button>
                 </nav>
-                <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold text-red-500 hover:bg-zinc-900 transition-colors mt-auto">
-                    <LogOut className="w-5 h-5" /> Logout
-                </button>
+                <div className="pt-6 border-t border-zinc-200">
+                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+                        <LogOut className="w-4 h-4" /> Sign Out
+                    </button>
+                </div>
             </aside>
 
-            <main className="flex-1 p-8 md:p-12 overflow-y-auto">
-                <h1 className="text-3xl font-black mb-8 tracking-tighter uppercase">
-                    {activeTab === 'orders' && 'Order Management'}
-                    {activeTab === 'customers' && 'Customer Directory'}
-                    {activeTab === 'inventory' && 'Inventory Management'}
-                    {activeTab === 'add-product' && 'Add New Product'}
-                    {activeTab === 'add-admin' && 'Admin Management'}
-                </h1>
+            <main className="flex-1 p-8 md:p-10 overflow-y-auto">
+                <div className="max-w-6xl mx-auto">
+                    <h1 className="text-2xl font-bold tracking-tight mb-8">
+                        {activeTab === 'orders' && 'Order Management'}
+                        {activeTab === 'customers' && 'Customer Directory'}
+                        {activeTab === 'inventory' && 'Inventory Management'}
+                        {activeTab === 'add-product' && 'Add New Product'}
+                        {activeTab === 'add-admin' && 'Team Management'}
+                    </h1>
 
-                {/* Orders Tab */}
-                {activeTab === 'orders' && (
-                    <div className="space-y-6">
-                        <div className="flex flex-col md:flex-row gap-4 bg-zinc-950 p-4 rounded-xl border border-zinc-900">
-                            <div className="flex-1 relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                                <input
-                                    type="text"
-                                    placeholder="Search by email or phone number..."
-                                    value={orderSearchTerm}
-                                    onChange={(e) => setOrderSearchTerm(e.target.value)}
-                                    className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-white"
-                                />
+                    {/* Orders Tab */}
+                    {activeTab === 'orders' && (
+                        <div className="space-y-6">
+                            {/* Search & Filter Bar */}
+                            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                                <div className="relative w-full md:w-96">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search orders..."
+                                        value={orderSearchTerm}
+                                        onChange={(e) => setOrderSearchTerm(e.target.value)}
+                                        className="w-full bg-white border border-zinc-200 text-sm rounded-md pl-9 pr-4 py-2 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2 w-full md:w-auto">
+                                    <Filter className="w-4 h-4 text-zinc-400" />
+                                    <select
+                                        value={orderStatusFilter}
+                                        onChange={(e) => setOrderStatusFilter(e.target.value)}
+                                        className="bg-white border border-zinc-200 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-black focus:border-black cursor-pointer"
+                                    >
+                                        <option value="ALL">All Statuses</option>
+                                        <option value="PENDING">Pending</option>
+                                        <option value="PAID">Paid</option>
+                                        <option value="SHIPPED">Shipped</option>
+                                        <option value="DELIVERED">Delivered</option>
+                                        <option value="CANCELLED">Cancelled</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Filter className="w-4 h-4 text-zinc-500" />
-                                <select
-                                    value={orderStatusFilter}
-                                    onChange={(e) => setOrderStatusFilter(e.target.value)}
-                                    className="bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white"
-                                >
-                                    <option value="ALL">All Statuses</option>
-                                    <option value="PENDING">Pending</option>
-                                    <option value="PAID">Paid</option>
-                                    <option value="SHIPPED">Shipped</option>
-                                    <option value="DELIVERED">Delivered</option>
-                                    <option value="CANCELLED">Cancelled</option>
-                                </select>
+
+                            {/* Orders Table */}
+                            <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden shadow-sm">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-medium">
+                                        <tr>
+                                            <th className="px-6 py-3">Order ID</th>
+                                            <th className="px-6 py-3">Customer</th>
+                                            <th className="px-6 py-3">Amount</th>
+                                            <th className="px-6 py-3">Status</th>
+                                            <th className="px-6 py-3 text-right">Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-100">
+                                        {filteredOrders.length === 0 ? (
+                                            <tr><td colSpan="5" className="px-6 py-8 text-center text-zinc-500">No orders found.</td></tr>
+                                        ) : (
+                                            filteredOrders.map(order => (
+                                                <tr key={order.id} className={`hover:bg-zinc-50 transition-colors ${order.status === 'CANCELLED' ? 'opacity-50' : ''}`}>
+                                                    <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{order.id}</td>
+                                                    <td className="px-6 py-4 font-medium text-black">{order.customerEmail}</td>
+                                                    <td className="px-6 py-4 font-semibold text-black">₹{order.totalAmount?.toLocaleString('en-IN')}</td>
+                                                    <td className="px-6 py-4">
+                                                        <span className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider
+                                                            ${order.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border border-yellow-200' :
+                                                            order.status === 'CANCELLED' ? 'bg-red-50 text-red-700 border border-red-200' :
+                                                                order.status === 'SHIPPED' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                                                    'bg-green-50 text-green-700 border border-green-200'}`}
+                                                        >
+                                                            {order.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <button
+                                                                onClick={() => setViewingOrder(order)}
+                                                                className="p-1.5 text-zinc-400 hover:text-black hover:bg-zinc-100 rounded-md transition-colors"
+                                                                title="View Details"
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                            </button>
+
+                                                            {order.status === 'CANCELLED' ? (
+                                                                <span className="text-[10px] text-zinc-400 font-bold uppercase ml-2 border border-zinc-200 px-2 py-1 rounded-md">Cancelled</span>
+                                                            ) : (
+                                                                <>
+                                                                    {order.status === 'PENDING' ? (
+                                                                        <button onClick={() => handleMarkPaid(order.id)} className="bg-black text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-zinc-800 transition-colors shadow-sm">Mark Paid</button>
+                                                                    ) : (
+                                                                        <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="bg-white border border-zinc-200 text-black text-xs font-medium rounded-md py-1.5 px-2 focus:outline-none focus:ring-1 focus:ring-black cursor-pointer">
+                                                                            <option value="PAID">PAID</option>
+                                                                            <option value="SHIPPED">SHIPPED</option>
+                                                                            <option value="DELIVERED">DELIVERED</option>
+                                                                        </select>
+                                                                    )}
+                                                                    <button
+                                                                        onClick={() => handleCancelOrder(order.id)}
+                                                                        className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                                        title="Cancel Order"
+                                                                    >
+                                                                        <XCircle className="w-4 h-4" />
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
+                    )}
 
-                        <div className="overflow-x-auto border border-zinc-900 rounded-xl">
-                            <table className="w-full text-left text-sm whitespace-nowrap">
-                                <thead className="bg-zinc-950 text-zinc-400 font-mono uppercase text-xs">
-                                <tr>
-                                    <th className="p-4 border-b border-zinc-900">ID</th>
-                                    <th className="p-4 border-b border-zinc-900">Contact</th>
-                                    <th className="p-4 border-b border-zinc-900">Total (₹)</th>
-                                    <th className="p-4 border-b border-zinc-900">Status</th>
-                                    <th className="p-4 border-b border-zinc-900 text-right">Action</th>
-                                </tr>
-                                </thead>
-                                <tbody className="divide-y divide-zinc-900">
-                                {filteredOrders.length === 0 ? (
-                                    <tr><td colSpan="5" className="p-8 text-center text-zinc-500 font-mono">No orders found matching criteria.</td></tr>
-                                ) : (
-                                    filteredOrders.map(order => (
-                                        <tr key={order.id} className={`hover:bg-zinc-900/50 transition-colors ${order.status === 'CANCELLED' ? 'opacity-50' : ''}`}>
-                                            <td className="p-4 font-mono text-zinc-400">#{order.id}</td>
-                                            <td className="p-4 font-medium text-white">{order.customerEmail}</td>
-                                            <td className="p-4 font-bold text-white">₹{order.totalAmount?.toLocaleString('en-IN')}</td>
-                                            <td className="p-4">
-                                                <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-widest 
-                                                    ${order.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' :
-                                                    order.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500' :
-                                                        order.status === 'SHIPPED' ? 'bg-blue-500/10 text-blue-500' :
-                                                            'bg-green-500/10 text-green-500'}`}
-                                                >
-                                                    {order.status}
+                    {/* Customers Tab */}
+                    {activeTab === 'customers' && (
+                        <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden shadow-sm">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm">
+                                    <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-medium">
+                                    <tr>
+                                        <th className="px-6 py-3">Customer ID</th>
+                                        <th className="px-6 py-3">Email Address</th>
+                                        <th className="px-6 py-3">Phone Number</th>
+                                        <th className="px-6 py-3 text-center">Total Orders</th>
+                                        <th className="px-6 py-3 text-right">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-zinc-100">
+                                    {customers.length === 0 ? (
+                                        <tr><td colSpan="5" className="px-6 py-8 text-center text-zinc-500">No customers found.</td></tr>
+                                    ) : (
+                                        customers.map(customer => (
+                                            <tr key={customer.id} className="hover:bg-zinc-50 transition-colors">
+                                                <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{customer.id}</td>
+                                                <td className="px-6 py-4 font-medium text-black">{customer.email || '-'}</td>
+                                                <td className="px-6 py-4 text-zinc-600">{customer.phoneNumber || '-'}</td>
+                                                <td className="px-6 py-4 text-center font-medium">
+                                                    {customer.orders ? customer.orders.length : 0}
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    {customer.orders && customer.orders.length > 0 ? (
+                                                        <button
+                                                            onClick={() => setViewingCustomerOrders(customer)}
+                                                            className="inline-flex items-center gap-1.5 bg-white border border-zinc-200 hover:bg-zinc-50 text-black px-3 py-1.5 rounded-md transition-colors text-xs font-medium shadow-sm"
+                                                        >
+                                                            <ListOrdered className="w-3.5 h-3.5" /> View
+                                                        </button>
+                                                    ) : (
+                                                        <span className="text-zinc-400 text-xs italic pr-2">None</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Inventory Tab */}
+                    {activeTab === 'inventory' && (
+                        <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden shadow-sm">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm">
+                                    <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-medium">
+                                    <tr>
+                                        <th className="px-6 py-3">ID</th>
+                                        <th className="px-6 py-3">Product Details</th>
+                                        <th className="px-6 py-3">Status</th>
+                                        <th className="px-6 py-3 text-center">Stock</th>
+                                        <th className="px-6 py-3 text-right">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-zinc-100">
+                                    {products.map(product => (
+                                        <tr key={product.id} className={`hover:bg-zinc-50 transition-colors ${!product.active ? 'opacity-50 bg-zinc-50/50' : ''}`}>
+                                            <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{product.id}</td>
+                                            <td className="px-6 py-4">
+                                                <div className="font-semibold text-black truncate max-w-[250px]">{product.name}</div>
+                                                <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">{product.category}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex items-center px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-wider ${product.active ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-zinc-100 text-zinc-500 border border-zinc-200'}`}>
+                                                    {product.active ? 'Active' : 'Archived'}
                                                 </span>
                                             </td>
-                                            <td className="p-4 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <button
-                                                        onClick={() => setViewingOrder(order)}
-                                                        className="p-1.5 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 rounded transition-colors"
-                                                        title="View Order Details"
-                                                    >
-                                                        <Eye className="w-4 h-4" />
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center justify-center gap-1.5">
+                                                    <input type="number" defaultValue={product.stockQuantity} id={`stock-${product.id}`} className="w-16 bg-white border border-zinc-200 text-sm rounded-md p-1.5 text-center focus:outline-none focus:ring-1 focus:ring-black" />
+                                                    <button onClick={() => handleStockUpdate(product.id, document.getElementById(`stock-${product.id}`).value)} className="bg-zinc-100 border border-zinc-200 text-zinc-600 p-1.5 rounded-md hover:bg-black hover:text-white transition-colors" title="Save Stock">
+                                                        <Check className="w-4 h-4" />
                                                     </button>
-
-                                                    {order.status === 'CANCELLED' ? (
-                                                        <span className="text-xs text-zinc-600 font-bold uppercase ml-2">Cancelled</span>
-                                                    ) : (
-                                                        <>
-                                                            {order.status === 'PENDING' ? (
-                                                                <button onClick={() => handleMarkPaid(order.id)} className="bg-green-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-green-500 transition-colors">Mark Paid</button>
-                                                            ) : (
-                                                                <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="bg-zinc-950 border border-zinc-800 text-white text-xs rounded py-1.5 px-2 focus:outline-none focus:border-zinc-500">
-                                                                    <option value="PAID">PAID</option>
-                                                                    <option value="SHIPPED">SHIPPED</option>
-                                                                    <option value="DELIVERED">DELIVERED</option>
-                                                                </select>
-                                                            )}
-                                                            <button
-                                                                onClick={() => handleCancelOrder(order.id)}
-                                                                className="p-1.5 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors"
-                                                                title="Cancel Order & Restock"
-                                                            >
-                                                                <XCircle className="w-4 h-4" />
-                                                            </button>
-                                                        </>
-                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => setEditingProduct({...product, variants: product.variants || [], additionalImages: product.additionalImages || []})}
+                                                        className="p-1.5 rounded-md text-zinc-400 hover:bg-zinc-100 hover:text-black transition-colors" title="Edit Product"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                    </button>
+                                                    <button onClick={() => handleToggleVisibility(product.id)} className={`p-1.5 rounded-md transition-colors ${product.active ? 'text-zinc-400 hover:bg-red-50 hover:text-red-600' : 'text-zinc-400 hover:bg-green-50 hover:text-green-600'}`} title={product.active ? "Hide Product" : "Show Product"}>
+                                                        {product.active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )}
-
-                {/* Customers Tab */}
-                {activeTab === 'customers' && (
-                    <div className="overflow-x-auto border border-zinc-900 rounded-xl">
-                        <table className="w-full text-left text-sm whitespace-nowrap">
-                            <thead className="bg-zinc-950 text-zinc-400 font-mono uppercase text-xs">
-                            <tr>
-                                <th className="p-4 border-b border-zinc-900">ID</th>
-                                <th className="p-4 border-b border-zinc-900">Email</th>
-                                <th className="p-4 border-b border-zinc-900">Phone</th>
-                                <th className="p-4 border-b border-zinc-900">Total Orders</th>
-                                <th className="p-4 border-b border-zinc-900 text-right">Action</th>
-                            </tr>
-                            </thead>
-                            <tbody className="divide-y divide-zinc-900">
-                            {customers.length === 0 ? (
-                                <tr><td colSpan="5" className="p-8 text-center text-zinc-500 font-mono">No customers found.</td></tr>
-                            ) : (
-                                customers.map(customer => (
-                                    <tr key={customer.id} className="hover:bg-zinc-900/50 transition-colors">
-                                        <td className="p-4 font-mono text-zinc-400">#{customer.id}</td>
-                                        <td className="p-4 font-bold text-white">{customer.email || '-'}</td>
-                                        <td className="p-4 font-bold text-white">{customer.phoneNumber || '-'}</td>
-                                        <td className="p-4 font-mono text-zinc-400">
-                                            {customer.orders ? customer.orders.length : 0}
-                                        </td>
-                                        <td className="p-4 text-right">
-                                            {customer.orders && customer.orders.length > 0 ? (
-                                                <button
-                                                    onClick={() => setViewingCustomerOrders(customer)}
-                                                    className="inline-flex items-center gap-2 bg-zinc-800 hover:bg-white hover:text-black text-zinc-300 px-3 py-1.5 rounded transition-colors text-xs font-bold"
-                                                    title="View Customer's Orders"
-                                                >
-                                                    <ListOrdered className="w-3.5 h-3.5" /> View Orders
-                                                </button>
-                                            ) : (
-                                                <span className="text-zinc-600 text-xs italic">No orders</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {/* Inventory Tab */}
-                {activeTab === 'inventory' && (
-                    <div className="overflow-x-auto border border-zinc-900 rounded-xl">
-                        <table className="w-full text-left text-sm whitespace-nowrap">
-                            <thead className="bg-zinc-950 text-zinc-400 font-mono uppercase text-xs">
-                            <tr>
-                                <th className="p-4 border-b border-zinc-900">ID</th>
-                                <th className="p-4 border-b border-zinc-900">Name</th>
-                                <th className="p-4 border-b border-zinc-900">Status</th>
-                                <th className="p-4 border-b border-zinc-900">Stock Update</th>
-                                <th className="p-4 border-b border-zinc-900 text-right">Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody className="divide-y divide-zinc-900">
-                            {products.map(product => (
-                                <tr key={product.id} className={`hover:bg-zinc-900/50 transition-colors ${!product.active ? 'opacity-50' : ''}`}>
-                                    <td className="p-4 font-mono text-zinc-500">#{product.id}</td>
-                                    <td className="p-4 font-bold text-white truncate max-w-[200px]">{product.name}</td>
-                                    <td className="p-4">
-                                        <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-widest ${product.active ? 'bg-green-900/30 text-green-500' : 'bg-zinc-800 text-zinc-400'}`}>
-                                            {product.active ? 'Active' : 'Archived'}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 flex gap-2">
-                                        <input type="number" defaultValue={product.stockQuantity} id={`stock-${product.id}`} className="w-16 bg-zinc-950 border border-zinc-800 text-white text-sm rounded p-1 text-center focus:outline-none focus:border-white" />
-                                        <button onClick={() => handleStockUpdate(product.id, document.getElementById(`stock-${product.id}`).value)} className="bg-zinc-800 text-white p-1.5 rounded hover:bg-white hover:text-black transition-colors" title="Save Stock">
-                                            <Check className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                                onClick={() => setEditingProduct({...product, variants: product.variants || [], additionalImages: product.additionalImages || []})}
-                                                className="p-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors" title="Edit Product"
-                                            >
-                                                <Edit2 className="w-5 h-5" />
-                                            </button>
-                                            <button onClick={() => handleToggleVisibility(product.id)} className={`p-2 rounded-lg transition-colors ${product.active ? 'text-zinc-400 hover:bg-red-900/30 hover:text-red-500' : 'text-zinc-400 hover:bg-green-900/30 hover:text-green-500'}`} title={product.active ? "Hide" : "Show"}>
-                                                {product.active ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {/* Add Product Form */}
-                {activeTab === 'add-product' && (
-                    <form onSubmit={handleAddProduct} className="max-w-3xl bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Product Name *</label>
-                                <input required type="text" name="name" value={newProduct.name} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Brand</label>
-                                <input type="text" name="brand" value={newProduct.brand} onChange={handleProductInputChange} placeholder="e.g. ResMed, Philips" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Description *</label>
-                                <textarea required name="description" value={newProduct.description} onChange={handleProductInputChange} rows="3" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white"></textarea>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Base Price (₹) *</label>
-                                <input required type="number" step="0.01" name="price" value={newProduct.price} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Old Price (₹)</label>
-                                <input type="number" step="0.01" name="oldPrice" value={newProduct.oldPrice} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Base Stock *</label>
-                                <input required type="number" name="stockQuantity" value={newProduct.stockQuantity} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Category *</label>
-                                <select required name="category" value={newProduct.category} onChange={handleProductInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white appearance-none">
-                                    <option value="" disabled>Select category...</option>
-                                    {CATEGORY_OPTIONS.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
-                                </select>
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Main Image URL</label>
-                                <input type="text" name="imageUrl" value={newProduct.imageUrl} onChange={handleProductInputChange} placeholder="https://..." className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-
-                            {/* DYNAMIC ADDITIONAL IMAGES */}
-                            <div className="md:col-span-2 border-t border-zinc-800 pt-6 mt-2">
-                                <div className="flex justify-between items-center mb-4">
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">Additional Image Gallery</label>
-                                    <button type="button" onClick={() => handleAddArrayItem(false, 'additionalImages', { imageUrl: '' })} className="flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors">
-                                        <PlusCircle className="w-4 h-4" /> Add Image
-                                    </button>
-                                </div>
-                                {newProduct.additionalImages?.map((img, idx) => (
-                                    <div key={idx} className="flex items-center gap-3 mb-3">
-                                        <input type="text" required value={img.imageUrl || ''} onChange={(e) => handleArrayItemChange(false, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-950 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
-                                        <button type="button" onClick={() => handleRemoveArrayItem(false, 'additionalImages', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-950 border border-zinc-800 rounded-lg transition-colors"><X className="w-4 h-4" /></button>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* DYNAMIC VARIANTS */}
-                            <div className="md:col-span-2 border-t border-zinc-800 pt-6">
-                                <div className="flex justify-between items-center mb-4">
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">Product Variants</label>
-                                    <button type="button" onClick={() => handleAddArrayItem(false, 'variants', { variantType: '', variantSize: '', stockQuantity: 0, priceOverride: '' })} className="flex items-center gap-1 text-xs font-bold text-green-400 hover:text-green-300 transition-colors">
-                                        <PlusCircle className="w-4 h-4" /> Add Variant
-                                    </button>
-                                </div>
-                                {newProduct.variants?.map((v, idx) => (
-                                    <div key={idx} className="grid grid-cols-5 gap-3 mb-3 bg-zinc-950 p-3 rounded-lg border border-zinc-800 items-end">
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Type *</label>
-                                            <input type="text" required value={v.variantType} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'variantType', e.target.value)} placeholder="e.g. Mask" className="w-full bg-zinc-900 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Size</label>
-                                            <input type="text" value={v.variantSize} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'variantSize', e.target.value)} placeholder="e.g. Medium" className="w-full bg-zinc-900 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Stock *</label>
-                                            <input type="number" required value={v.stockQuantity} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'stockQuantity', parseInt(e.target.value) || 0)} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Price (Override)</label>
-                                            <input type="number" step="0.01" value={v.priceOverride || ''} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'priceOverride', e.target.value ? parseFloat(e.target.value) : null)} placeholder="₹" className="w-full bg-zinc-900 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
-                                        </div>
-                                        <div className="flex justify-end pb-1">
-                                            <button type="button" onClick={() => handleRemoveArrayItem(false, 'variants', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-900 border border-zinc-800 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <button type="submit" className="mt-8 w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
-                            Save Product
-                        </button>
-                    </form>
-                )}
-
-                {/* Admin Management Tab */}
-                {activeTab === 'add-admin' && (
-                    <div className="max-w-2xl space-y-8">
-                        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
-                            <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-800 pb-4">Current Administrators</h2>
-                            {admins.length === 0 ? (
-                                <p className="text-sm text-zinc-500 font-mono">[ no admins loaded ]</p>
-                            ) : (
-                                <ul className="space-y-3">
-                                    {admins.map((admin) => (
-                                        <li key={admin.id} className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-lg group">
-                                            <div className="flex items-center gap-4">
-                                                <span className="font-bold text-white">{admin.username}</span>
-                                                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest bg-zinc-900 px-2 py-1 rounded">Active</span>
-                                            </div>
-                                            <button onClick={() => handleDeleteAdmin(admin.id, admin.username)} className="p-2 text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all" title="Delete Admin">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </li>
                                     ))}
-                                </ul>
-                            )}
-                        </div>
-
-                        <form onSubmit={handleAddAdmin} className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
-                            <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-800 pb-4">Register New Admin</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Username *</label>
-                                    <input required type="text" name="username" value={newAdmin.username} onChange={handleAdminInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Password *</label>
-                                    <input required type="password" name="password" value={newAdmin.password} onChange={handleAdminInputChange} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                                </div>
+                                    </tbody>
+                                </table>
                             </div>
-                            <button type="submit" className="mt-8 w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
-                                Register Admin
-                            </button>
-                        </form>
-                    </div>
-                )}
+                        </div>
+                    )}
+
+                    {/* Add Product Form */}
+                    {activeTab === 'add-product' && (
+                        <div className="max-w-3xl">
+                            <form onSubmit={handleAddProduct} className="bg-white border border-zinc-200 rounded-xl p-6 md:p-8 shadow-sm">
+                                <h2 className="text-lg font-semibold mb-6 border-b border-zinc-100 pb-4">Product Details</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Product Name *</label>
+                                        <input required type="text" name="name" value={newProduct.name} onChange={handleProductInputChange} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Brand</label>
+                                        <input type="text" name="brand" value={newProduct.brand} onChange={handleProductInputChange} placeholder="e.g. ResMed, Philips" className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Description *</label>
+                                        <textarea required name="description" value={newProduct.description} onChange={handleProductInputChange} rows="3" className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black resize-none"></textarea>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Base Price (₹) *</label>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">₹</span>
+                                            <input required type="number" step="0.01" name="price" value={newProduct.price} onChange={handleProductInputChange} className="w-full bg-white border border-zinc-200 rounded-md py-2 pl-7 pr-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Old Price (₹)</label>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">₹</span>
+                                            <input type="number" step="0.01" name="oldPrice" value={newProduct.oldPrice} onChange={handleProductInputChange} className="w-full bg-white border border-zinc-200 rounded-md py-2 pl-7 pr-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Base Stock *</label>
+                                        <input required type="number" name="stockQuantity" value={newProduct.stockQuantity} onChange={handleProductInputChange} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Category *</label>
+                                        <select required name="category" value={newProduct.category} onChange={handleProductInputChange} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black cursor-pointer appearance-none">
+                                            <option value="" disabled>Select category...</option>
+                                            {CATEGORY_OPTIONS.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Main Image URL</label>
+                                        <input type="text" name="imageUrl" value={newProduct.imageUrl} onChange={handleProductInputChange} placeholder="https://..." className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                    </div>
+
+                                    {/* DYNAMIC ADDITIONAL IMAGES */}
+                                    <div className="md:col-span-2 border-t border-zinc-100 pt-6 mt-2">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h3 className="text-sm font-semibold text-black">Additional Image Gallery</h3>
+                                            <button type="button" onClick={() => handleAddArrayItem(false, 'additionalImages', { imageUrl: '' })} className="flex items-center gap-1.5 text-xs font-medium text-black bg-white border border-zinc-200 hover:bg-zinc-50 px-3 py-1.5 rounded-md transition-colors shadow-sm">
+                                                <PlusCircle className="w-3.5 h-3.5" /> Add Image
+                                            </button>
+                                        </div>
+                                        {newProduct.additionalImages?.map((img, idx) => (
+                                            <div key={idx} className="flex items-center gap-3 mb-3">
+                                                <input type="text" required value={img.imageUrl || ''} onChange={(e) => handleArrayItemChange(false, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                                <button type="button" onClick={() => handleRemoveArrayItem(false, 'additionalImages', idx)} className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-md transition-colors"><X className="w-4 h-4" /></button>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* DYNAMIC VARIANTS */}
+                                    <div className="md:col-span-2 border-t border-zinc-100 pt-6">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h3 className="text-sm font-semibold text-black">Product Variants</h3>
+                                            <button type="button" onClick={() => handleAddArrayItem(false, 'variants', { variantType: '', variantSize: '', stockQuantity: 0, priceOverride: '' })} className="flex items-center gap-1.5 text-xs font-medium text-black bg-white border border-zinc-200 hover:bg-zinc-50 px-3 py-1.5 rounded-md transition-colors shadow-sm">
+                                                <PlusCircle className="w-3.5 h-3.5" /> Add Variant
+                                            </button>
+                                        </div>
+                                        {newProduct.variants?.map((v, idx) => (
+                                            <div key={idx} className="grid grid-cols-5 gap-3 mb-3 bg-zinc-50 p-4 rounded-lg border border-zinc-200 items-end">
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Type *</label>
+                                                    <input type="text" required value={v.variantType} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'variantType', e.target.value)} placeholder="e.g. Color" className="w-full bg-white border border-zinc-200 rounded-md py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-black" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Size</label>
+                                                    <input type="text" value={v.variantSize} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'variantSize', e.target.value)} placeholder="e.g. Large" className="w-full bg-white border border-zinc-200 rounded-md py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-black" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Stock *</label>
+                                                    <input type="number" required value={v.stockQuantity} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'stockQuantity', parseInt(e.target.value) || 0)} className="w-full bg-white border border-zinc-200 rounded-md py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-black" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Price (Optional)</label>
+                                                    <input type="number" step="0.01" value={v.priceOverride || ''} onChange={(e) => handleArrayItemChange(false, 'variants', idx, 'priceOverride', e.target.value ? parseFloat(e.target.value) : null)} placeholder="₹" className="w-full bg-white border border-zinc-200 rounded-md py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-black" />
+                                                </div>
+                                                <div className="flex justify-end pb-0.5">
+                                                    <button type="button" onClick={() => handleRemoveArrayItem(false, 'variants', idx)} className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-md transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="mt-8 pt-6 border-t border-zinc-100">
+                                    <button type="submit" className="w-full bg-black hover:bg-zinc-800 text-white font-semibold py-2.5 rounded-md transition-colors text-sm shadow-sm">
+                                        Save Product to Database
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    {/* Admin Management Tab */}
+                    {activeTab === 'add-admin' && (
+                        <div className="max-w-2xl space-y-8">
+                            <div className="bg-white border border-zinc-200 rounded-xl p-6 md:p-8 shadow-sm">
+                                <h2 className="text-lg font-semibold mb-6 border-b border-zinc-100 pb-4">Current Administrators</h2>
+                                {admins.length === 0 ? (
+                                    <p className="text-sm text-zinc-500 italic">No administrators found.</p>
+                                ) : (
+                                    <ul className="space-y-3">
+                                        {admins.map((admin) => (
+                                            <li key={admin.id} className="flex items-center justify-between bg-zinc-50 border border-zinc-200 p-3.5 rounded-lg group hover:bg-white transition-colors">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-zinc-200 text-zinc-600 flex items-center justify-center font-bold text-xs uppercase">
+                                                        {admin.username.charAt(0)}
+                                                    </div>
+                                                    <span className="font-semibold text-sm">{admin.username}</span>
+                                                    <span className="text-[10px] font-bold text-green-700 bg-green-100 border border-green-200 uppercase tracking-widest px-2 py-0.5 rounded-md">Active</span>
+                                                </div>
+                                                <button onClick={() => handleDeleteAdmin(admin.id, admin.username)} className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Revoke Access">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+
+                            <form onSubmit={handleAddAdmin} className="bg-white border border-zinc-200 rounded-xl p-6 md:p-8 shadow-sm">
+                                <h2 className="text-lg font-semibold mb-6 border-b border-zinc-100 pb-4">Register New Admin</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Username *</label>
+                                        <input required type="text" name="username" value={newAdmin.username} onChange={handleAdminInputChange} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Password *</label>
+                                        <input required type="password" name="password" value={newAdmin.password} onChange={handleAdminInputChange} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                    </div>
+                                </div>
+                                <div className="mt-8 pt-6 border-t border-zinc-100">
+                                    <button type="submit" className="w-full bg-black hover:bg-zinc-800 text-white font-semibold py-2.5 rounded-md transition-colors text-sm shadow-sm">
+                                        Grant Admin Access
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+                </div>
             </main>
 
             {/* CUSTOMER'S ORDERS LIST MODAL (NEW) */}
             {viewingCustomerOrders && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
-                    <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
-                        <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 rounded-t-2xl shrink-0">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+                    <div className="bg-white border border-zinc-200 rounded-xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+                        <div className="px-6 py-4 border-b border-zinc-100 flex justify-between items-center bg-zinc-50 shrink-0">
                             <div>
-                                <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-3 uppercase">
-                                    Order History
+                                <h2 className="text-lg font-bold text-black flex items-center gap-2">
+                                    Customer Orders
                                 </h2>
-                                <p className="text-xs font-bold text-zinc-500 mt-1 uppercase tracking-widest">
+                                <p className="text-xs text-zinc-500 mt-0.5">
                                     {viewingCustomerOrders.email || viewingCustomerOrders.phoneNumber}
                                 </p>
                             </div>
-                            <button onClick={() => setViewingCustomerOrders(null)} className="text-zinc-500 hover:text-white hover:bg-zinc-800 p-2 rounded-lg transition-colors">
+                            <button onClick={() => setViewingCustomerOrders(null)} className="text-zinc-400 hover:text-black hover:bg-zinc-100 p-1.5 rounded-md transition-colors">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
                         <div className="p-6 overflow-y-auto">
                             {viewingCustomerOrders.orders && viewingCustomerOrders.orders.length > 0 ? (
-                                <div className="space-y-4">
+                                <div className="space-y-3">
                                     {viewingCustomerOrders.orders.map(order => (
-                                        <div key={order.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center justify-between group hover:border-zinc-600 transition-colors">
-                                            <div className="flex flex-col gap-1">
+                                        <div key={order.id} className="bg-white border border-zinc-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-black transition-colors shadow-sm">
+                                            <div className="flex flex-col gap-1.5">
                                                 <div className="flex items-center gap-3">
-                                                    <span className="font-mono text-sm text-zinc-400">#{order.id}</span>
-                                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest 
-                                                        ${order.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' :
-                                                        order.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500' :
-                                                            order.status === 'SHIPPED' ? 'bg-blue-500/10 text-blue-500' :
-                                                                'bg-green-500/10 text-green-500'}`}
+                                                    <span className="font-mono text-xs font-medium text-zinc-500">#{order.id}</span>
+                                                    <span className={`px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-widest border
+                                                        ${order.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                                        order.status === 'CANCELLED' ? 'bg-red-50 text-red-700 border-red-200' :
+                                                            order.status === 'SHIPPED' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                                'bg-green-50 text-green-700 border-green-200'}`}
                                                     >
                                                         {order.status}
                                                     </span>
                                                 </div>
-                                                <span className="text-xs text-zinc-500 font-medium">Total Items: {order.items ? order.items.length : 0}</span>
+                                                <span className="text-xs text-zinc-500">Total Items: <span className="font-semibold text-black">{order.items ? order.items.length : 0}</span></span>
                                             </div>
 
-                                            <div className="flex items-center gap-6">
-                                                <span className="font-black text-white">₹{order.totalAmount?.toLocaleString('en-IN')}</span>
+                                            <div className="flex items-center gap-4 sm:gap-6 justify-between sm:justify-end">
+                                                <span className="font-bold text-black text-sm">₹{order.totalAmount?.toLocaleString('en-IN')}</span>
                                                 <button
                                                     onClick={() => setViewingOrder(order)}
-                                                    className="bg-white text-black hover:bg-zinc-200 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
+                                                    className="bg-white border border-zinc-200 text-black hover:bg-zinc-50 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 shadow-sm"
                                                 >
-                                                    <Eye className="w-3.5 h-3.5" /> Details
+                                                    <Eye className="w-3.5 h-3.5" /> View
                                                 </button>
                                             </div>
                                         </div>
@@ -639,7 +677,7 @@ export default function AdminDashboard() {
                                 </div>
                             ) : (
                                 <div className="text-center py-12">
-                                    <p className="text-zinc-500 font-mono text-sm">No orders found for this customer.</p>
+                                    <p className="text-zinc-500 text-sm">No orders found for this customer.</p>
                                 </div>
                             )}
                         </div>
@@ -649,76 +687,79 @@ export default function AdminDashboard() {
 
             {/* View Order Modal Overlay (EXISTING) */}
             {viewingOrder && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[70]">
-                    <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
-                        <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 rounded-t-2xl shrink-0">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[70]">
+                    <div className="bg-white border border-zinc-200 rounded-xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+                        <div className="px-6 py-4 border-b border-zinc-100 flex justify-between items-center bg-zinc-50 shrink-0">
                             <div>
-                                <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-3">
-                                    ORDER #{viewingOrder.id}
-                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest 
-                                        ${viewingOrder.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' :
-                                        viewingOrder.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500' :
-                                            viewingOrder.status === 'SHIPPED' ? 'bg-blue-500/10 text-blue-500' :
-                                                'bg-green-500/10 text-green-500'}`}
+                                <h2 className="text-lg font-bold text-black flex items-center gap-3">
+                                    Order #{viewingOrder.id}
+                                    <span className={`px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-widest border
+                                        ${viewingOrder.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                        viewingOrder.status === 'CANCELLED' ? 'bg-red-50 text-red-700 border-red-200' :
+                                            viewingOrder.status === 'SHIPPED' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                'bg-green-50 text-green-700 border-green-200'}`}
                                     >
                                         {viewingOrder.status}
                                     </span>
                                 </h2>
                             </div>
-                            <button onClick={() => setViewingOrder(null)} className="text-zinc-500 hover:text-white hover:bg-zinc-800 p-2 rounded-lg transition-colors">
+                            <button onClick={() => setViewingOrder(null)} className="text-zinc-400 hover:text-black hover:bg-zinc-100 p-1.5 rounded-md transition-colors">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
                         <div className="p-6 overflow-y-auto space-y-6">
-                            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Customer Details</h3>
+                            {/* Customer Info Box */}
+                            <div className="bg-white border border-zinc-200 rounded-lg p-5 shadow-sm">
+                                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-100 pb-2">Delivery Details</h3>
                                 <div className="space-y-4 text-sm">
-                                    <div>
-                                        <span className="block text-zinc-500 mb-1">Email / Phone</span>
-                                        <span className="text-white font-medium break-all">{viewingOrder.customerEmail}</span>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                                        <span className="text-zinc-500 font-medium">Contact:</span>
+                                        <span className="sm:col-span-2 text-black font-semibold break-all">{viewingOrder.customerEmail}</span>
                                     </div>
-                                    <div>
-                                        <span className="block text-zinc-500 mb-2">Shipping Address</span>
-                                        <div className="bg-zinc-950 p-4 rounded-lg border border-zinc-800 text-white font-medium leading-relaxed whitespace-pre-wrap break-words">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                                        <span className="text-zinc-500 font-medium">Shipping Address:</span>
+                                        <div className="sm:col-span-2 text-black leading-relaxed whitespace-pre-wrap break-words bg-zinc-50 p-3 rounded-md border border-zinc-100">
                                             {viewingOrder.shippingAddress || 'No address provided'}
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Products Ordered</h3>
+                            {/* Products List Box */}
+                            <div className="bg-white border border-zinc-200 rounded-lg p-5 shadow-sm">
+                                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 border-b border-zinc-100 pb-2">Order Items</h3>
                                 {viewingOrder.items && viewingOrder.items.length > 0 ? (
-                                    <ul className="divide-y divide-zinc-800">
+                                    <ul className="divide-y divide-zinc-100">
                                         {viewingOrder.items.map((item, idx) => (
-                                            <li key={idx} className="py-4 flex justify-between items-center group">
+                                            <li key={idx} className="py-3 flex justify-between items-start">
                                                 <div className="flex flex-col pr-4">
-                                                    <span className="text-white font-bold mb-1 line-clamp-2">{item.product?.name || 'Unknown Product'}</span>
+                                                    <span className="text-black font-semibold text-sm mb-1">{item.product?.name || 'Unknown Product'}</span>
                                                     {item.productVariant && (
-                                                        <span className="text-[11px] font-bold text-blue-400 mb-1">
-                                                            [ {item.productVariant.variantType} - {item.productVariant.variantSize} ]
+                                                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 bg-zinc-100 inline-block px-1.5 py-0.5 rounded w-fit border border-zinc-200">
+                                                            {item.productVariant.variantType} - {item.productVariant.variantSize}
                                                         </span>
                                                     )}
-                                                    <span className="text-xs font-mono text-zinc-400">
-                                                        Qty: {item.quantity}  ×  ₹{item.priceAtPurchase?.toLocaleString('en-IN') || item.price?.toLocaleString('en-IN')}
+                                                    <span className="text-xs text-zinc-500 mt-1">
+                                                        {item.quantity} × ₹{item.priceAtPurchase?.toLocaleString('en-IN') || item.price?.toLocaleString('en-IN')}
                                                     </span>
                                                 </div>
-                                                <span className="text-white font-black shrink-0">
+                                                <span className="text-black font-bold text-sm shrink-0 mt-1">
                                                     ₹{(item.quantity * (item.priceAtPurchase || item.price || 0)).toLocaleString('en-IN')}
                                                 </span>
                                             </li>
                                         ))}
                                     </ul>
                                 ) : (
-                                    <p className="text-zinc-500 text-sm py-4 italic">No items found for this order.</p>
+                                    <p className="text-zinc-500 text-sm py-2 italic">No items found for this order.</p>
                                 )}
                             </div>
                         </div>
 
-                        <div className="p-6 bg-zinc-900/80 border-t border-zinc-800 rounded-b-2xl flex justify-between items-center shrink-0">
-                            <span className="text-zinc-400 font-bold uppercase tracking-widest text-sm">Total Amount</span>
-                            <span className="text-2xl font-black text-white">₹{viewingOrder.totalAmount?.toLocaleString('en-IN')}</span>
+                        {/* Total Bar */}
+                        <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-200 flex justify-between items-center shrink-0">
+                            <span className="text-zinc-500 font-semibold text-sm">Total Paid</span>
+                            <span className="text-xl font-bold text-black">₹{viewingOrder.totalAmount?.toLocaleString('en-IN')}</span>
                         </div>
                     </div>
                 </div>
@@ -726,110 +767,113 @@ export default function AdminDashboard() {
 
             {/* Edit Product Modal Overlay */}
             {editingProduct && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-6 border-b border-zinc-800 pb-4">
-                            <h2 className="text-xl font-black uppercase tracking-tighter">Edit Product</h2>
-                            <button onClick={() => setEditingProduct(null)} className="text-zinc-500 hover:text-white transition-colors">
-                                <X className="w-6 h-6" />
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white border border-zinc-200 rounded-xl p-0 w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+
+                        <div className="px-6 py-4 border-b border-zinc-100 flex justify-between items-center bg-zinc-50 shrink-0">
+                            <h2 className="text-lg font-bold text-black">Edit Product</h2>
+                            <button onClick={() => setEditingProduct(null)} className="text-zinc-400 hover:text-black hover:bg-zinc-200 p-1.5 rounded-md transition-colors">
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleUpdateProduct} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Product Name</label>
-                                <input required type="text" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Brand</label>
-                                <input type="text" value={editingProduct.brand || ''} onChange={e => setEditingProduct({...editingProduct, brand: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Description</label>
-                                <textarea required rows="2" value={editingProduct.description} onChange={e => setEditingProduct({...editingProduct, description: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white"></textarea>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Base Price (₹)</label>
-                                <input required type="number" step="0.01" value={editingProduct.price} onChange={e => setEditingProduct({...editingProduct, price: parseFloat(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Old Price (₹)</label>
-                                <input type="number" step="0.01" value={editingProduct.oldPrice || ''} onChange={e => setEditingProduct({...editingProduct, oldPrice: parseFloat(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Base Stock Quantity</label>
-                                <input required type="number" value={editingProduct.stockQuantity} onChange={e => setEditingProduct({...editingProduct, stockQuantity: parseInt(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Category</label>
-                                <select required value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white appearance-none">
-                                    <option value="" disabled>Select category...</option>
-                                    {CATEGORY_OPTIONS.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
-                                </select>
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Main Image URL</label>
-                                <input type="text" value={editingProduct.imageUrl || ''} onChange={e => setEditingProduct({...editingProduct, imageUrl: e.target.value})} placeholder="https://..." className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg py-3 px-4 focus:outline-none focus:border-white" />
-                            </div>
-
-                            {/* DYNAMIC ADDITIONAL IMAGES (EDIT) */}
-                            <div className="md:col-span-2 border-t border-zinc-800 pt-6 mt-2">
-                                <div className="flex justify-between items-center mb-4">
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">Additional Image Gallery</label>
-                                    <button type="button" onClick={() => handleAddArrayItem(true, 'additionalImages', { imageUrl: '' })} className="flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors">
-                                        <PlusCircle className="w-4 h-4" /> Add Image
-                                    </button>
+                        <div className="p-6 overflow-y-auto">
+                            <form onSubmit={handleUpdateProduct} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Product Name</label>
+                                    <input required type="text" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
                                 </div>
-                                {editingProduct.additionalImages?.map((img, idx) => (
-                                    <div key={idx} className="flex items-center gap-3 mb-3">
-                                        <input type="text" required value={img.imageUrl || ''} onChange={(e) => handleArrayItemChange(true, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-zinc-900 border border-zinc-800 text-white rounded-lg py-2 px-4 focus:outline-none focus:border-white text-sm" />
-                                        <button type="button" onClick={() => handleRemoveArrayItem(true, 'additionalImages', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-900 border border-zinc-800 rounded-lg transition-colors"><X className="w-4 h-4" /></button>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* DYNAMIC VARIANTS (EDIT) */}
-                            <div className="md:col-span-2 border-t border-zinc-800 pt-6">
-                                <div className="flex justify-between items-center mb-4">
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">Product Variants</label>
-                                    <button type="button" onClick={() => handleAddArrayItem(true, 'variants', { variantType: '', variantSize: '', stockQuantity: 0, priceOverride: '' })} className="flex items-center gap-1 text-xs font-bold text-green-400 hover:text-green-300 transition-colors">
-                                        <PlusCircle className="w-4 h-4" /> Add Variant
-                                    </button>
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Brand</label>
+                                    <input type="text" value={editingProduct.brand || ''} onChange={e => setEditingProduct({...editingProduct, brand: e.target.value})} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
                                 </div>
-                                {editingProduct.variants?.map((v, idx) => (
-                                    <div key={idx} className="grid grid-cols-5 gap-3 mb-3 bg-zinc-900 p-3 rounded-lg border border-zinc-800 items-end">
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Type *</label>
-                                            <input type="text" required value={v.variantType} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'variantType', e.target.value)} placeholder="e.g. Mask" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Size</label>
-                                            <input type="text" value={v.variantSize} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'variantSize', e.target.value)} placeholder="e.g. Medium" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Stock *</label>
-                                            <input type="number" required value={v.stockQuantity} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'stockQuantity', parseInt(e.target.value) || 0)} className="w-full bg-zinc-950 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Price Override</label>
-                                            <input type="number" step="0.01" value={v.priceOverride || ''} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'priceOverride', e.target.value ? parseFloat(e.target.value) : null)} placeholder="₹" className="w-full bg-zinc-950 border border-zinc-800 text-white rounded py-2 px-3 text-sm focus:outline-none focus:border-white" />
-                                        </div>
-                                        <div className="flex justify-end pb-1">
-                                            <button type="button" onClick={() => handleRemoveArrayItem(true, 'variants', idx)} className="p-2 text-zinc-500 hover:text-red-500 bg-zinc-950 border border-zinc-800 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Description</label>
+                                    <textarea required rows="3" value={editingProduct.description} onChange={e => setEditingProduct({...editingProduct, description: e.target.value})} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black resize-none"></textarea>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Base Price (₹)</label>
+                                    <input required type="number" step="0.01" value={editingProduct.price} onChange={e => setEditingProduct({...editingProduct, price: parseFloat(e.target.value)})} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Old Price (₹)</label>
+                                    <input type="number" step="0.01" value={editingProduct.oldPrice || ''} onChange={e => setEditingProduct({...editingProduct, oldPrice: parseFloat(e.target.value)})} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Base Stock Quantity</label>
+                                    <input required type="number" value={editingProduct.stockQuantity} onChange={e => setEditingProduct({...editingProduct, stockQuantity: parseInt(e.target.value)})} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Category</label>
+                                    <select required value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})} className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black appearance-none cursor-pointer">
+                                        <option value="" disabled>Select category...</option>
+                                        {CATEGORY_OPTIONS.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
+                                    </select>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Main Image URL</label>
+                                    <input type="text" value={editingProduct.imageUrl || ''} onChange={e => setEditingProduct({...editingProduct, imageUrl: e.target.value})} placeholder="https://..." className="w-full bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                </div>
 
-                            <div className="md:col-span-2 mt-6 flex gap-4">
-                                <button type="submit" className="flex-1 bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
-                                    Save Changes
-                                </button>
-                                <button type="button" onClick={() => setEditingProduct(null)} className="flex-1 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-white font-black py-4 rounded-xl transition-colors uppercase text-sm tracking-widest">
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
+                                {/* DYNAMIC ADDITIONAL IMAGES (EDIT) */}
+                                <div className="md:col-span-2 border-t border-zinc-100 pt-6 mt-2">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-sm font-semibold text-black">Additional Image Gallery</h3>
+                                        <button type="button" onClick={() => handleAddArrayItem(true, 'additionalImages', { imageUrl: '' })} className="flex items-center gap-1.5 text-xs font-medium text-black bg-white border border-zinc-200 hover:bg-zinc-50 px-3 py-1.5 rounded-md transition-colors shadow-sm">
+                                            <PlusCircle className="w-3.5 h-3.5" /> Add Image
+                                        </button>
+                                    </div>
+                                    {editingProduct.additionalImages?.map((img, idx) => (
+                                        <div key={idx} className="flex items-center gap-3 mb-3">
+                                            <input type="text" required value={img.imageUrl || ''} onChange={(e) => handleArrayItemChange(true, 'additionalImages', idx, 'imageUrl', e.target.value)} placeholder="Image URL..." className="flex-1 bg-white border border-zinc-200 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black" />
+                                            <button type="button" onClick={() => handleRemoveArrayItem(true, 'additionalImages', idx)} className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-md transition-colors"><X className="w-4 h-4" /></button>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* DYNAMIC VARIANTS (EDIT) */}
+                                <div className="md:col-span-2 border-t border-zinc-100 pt-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-sm font-semibold text-black">Product Variants</h3>
+                                        <button type="button" onClick={() => handleAddArrayItem(true, 'variants', { variantType: '', variantSize: '', stockQuantity: 0, priceOverride: '' })} className="flex items-center gap-1.5 text-xs font-medium text-black bg-white border border-zinc-200 hover:bg-zinc-50 px-3 py-1.5 rounded-md transition-colors shadow-sm">
+                                            <PlusCircle className="w-3.5 h-3.5" /> Add Variant
+                                        </button>
+                                    </div>
+                                    {editingProduct.variants?.map((v, idx) => (
+                                        <div key={idx} className="grid grid-cols-5 gap-3 mb-3 bg-zinc-50 p-4 rounded-lg border border-zinc-200 items-end">
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Type *</label>
+                                                <input type="text" required value={v.variantType} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'variantType', e.target.value)} placeholder="e.g. Color" className="w-full bg-white border border-zinc-200 rounded-md py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-black" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Size</label>
+                                                <input type="text" value={v.variantSize} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'variantSize', e.target.value)} placeholder="e.g. Large" className="w-full bg-white border border-zinc-200 rounded-md py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-black" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Stock *</label>
+                                                <input type="number" required value={v.stockQuantity} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'stockQuantity', parseInt(e.target.value) || 0)} className="w-full bg-white border border-zinc-200 rounded-md py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-black" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Price Override</label>
+                                                <input type="number" step="0.01" value={v.priceOverride || ''} onChange={(e) => handleArrayItemChange(true, 'variants', idx, 'priceOverride', e.target.value ? parseFloat(e.target.value) : null)} placeholder="₹" className="w-full bg-white border border-zinc-200 rounded-md py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-black" />
+                                            </div>
+                                            <div className="flex justify-end pb-0.5">
+                                                <button type="button" onClick={() => handleRemoveArrayItem(true, 'variants', idx)} className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-md transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex gap-3 shrink-0">
+                            <button type="button" onClick={handleUpdateProduct} className="flex-1 bg-black hover:bg-zinc-800 text-white font-semibold py-2.5 rounded-md transition-colors text-sm shadow-sm">
+                                Save Changes
+                            </button>
+                            <button type="button" onClick={() => setEditingProduct(null)} className="flex-1 bg-white border border-zinc-200 hover:bg-zinc-50 text-black font-semibold py-2.5 rounded-md transition-colors text-sm shadow-sm">
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
