@@ -1,8 +1,7 @@
-import Link from "next/link"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { ArrowRight, Calendar, User, Clock } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Calendar, User, Clock, Twitter, Eye, MessageCircle } from "lucide-react";
+import Navbar from "./Navbar.jsx"; // Assuming Navbar is in the same directory
 
 const featuredPost = {
     id: 1,
@@ -13,7 +12,7 @@ const featuredPost = {
     author: "Dr. Sarah Chen",
     date: "March 15, 2026",
     readTime: "8 min read",
-}
+};
 
 const blogPosts = [
     {
@@ -66,65 +65,69 @@ const blogPosts = [
         date: "February 15, 2026",
         readTime: "4 min read",
     },
-]
+];
 
-const categories = ["All", "Innovation", "Maintenance", "Compliance", "Telemedicine", "Sustainability", "Training"]
+const categories = ["All", "Innovation", "Maintenance", "Compliance", "Telemedicine", "Sustainability", "Training"];
 
 export default function BlogPage() {
+    const [activeCategory, setActiveCategory] = useState("All");
+
     return (
-        <div className="flex min-h-screen flex-col">
-            <Header />
+        <div className="flex min-h-screen flex-col bg-white text-zinc-900 font-sans selection:bg-black selection:text-white">
+            <Navbar />
 
             <main className="flex-1">
                 {/* Hero */}
-                <section className="bg-muted/30 py-12">
+                <section className="bg-zinc-50/50 py-16 border-b border-zinc-200">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Blog & Insights</h1>
-                        <p className="mt-2 text-lg text-muted-foreground">
-                            Stay updated with the latest in medical technology and healthcare innovation
+                        <h1 className="text-4xl font-black tracking-tight text-black sm:text-5xl">Blog & Insights</h1>
+                        <p className="mt-4 text-lg font-medium text-zinc-500 max-w-2xl">
+                            Stay updated with the latest in medical technology and healthcare innovation.
                         </p>
                     </div>
                 </section>
 
                 {/* Featured Post */}
-                <section className="py-12">
+                <section className="py-16 md:py-24">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <Link href={`/blog/${featuredPost.id}`} className="group block">
+                        <Link to={`/blog/${featuredPost.id}`} className="group block">
                             <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
-                                <div className="overflow-hidden rounded-xl">
+                                <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
                                     <img
                                         src={featuredPost.image}
                                         alt={featuredPost.title}
-                                        className="aspect-[16/9] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        className="aspect-[16/9] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 </div>
-                                <div>
-                                    <Badge variant="secondary">{featuredPost.category}</Badge>
-                                    <h2 className="mt-4 text-2xl font-bold tracking-tight group-hover:text-accent sm:text-3xl">
+                                <div className="flex flex-col justify-center">
+                                    <span className="w-fit inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest bg-zinc-100 text-black border border-zinc-200">
+                                        {featuredPost.category}
+                                    </span>
+                                    <h2 className="mt-6 text-3xl font-black tracking-tight text-black group-hover:text-zinc-600 transition-colors sm:text-4xl leading-tight">
                                         {featuredPost.title}
                                     </h2>
-                                    <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+                                    <p className="mt-4 text-base font-medium leading-relaxed text-zinc-500">
                                         {featuredPost.excerpt}
                                     </p>
-                                    <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                        {featuredPost.author}
-                    </span>
-                                        <span className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
+                                    <div className="mt-8 flex flex-wrap items-center gap-6 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                                        <span className="flex items-center gap-1.5 text-black">
+                                            <User className="h-4 w-4" />
+                                            {featuredPost.author}
+                                        </span>
+                                        <span className="flex items-center gap-1.5">
+                                            <Calendar className="h-4 w-4" />
                                             {featuredPost.date}
-                    </span>
-                                        <span className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
+                                        </span>
+                                        <span className="flex items-center gap-1.5">
+                                            <Clock className="h-4 w-4" />
                                             {featuredPost.readTime}
-                    </span>
+                                        </span>
                                     </div>
-                                    <div className="mt-6">
-                    <span className="inline-flex items-center font-medium text-foreground group-hover:text-accent">
-                      Read Article
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
+                                    <div className="mt-8">
+                                        <span className="inline-flex items-center font-bold text-sm text-black group-hover:text-zinc-500 transition-colors uppercase tracking-widest">
+                                            Read Article
+                                            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -133,16 +136,17 @@ export default function BlogPage() {
                 </section>
 
                 {/* Categories */}
-                <section className="border-b border-border">
+                <section className="border-y border-zinc-200 bg-zinc-50">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <div className="flex gap-2 overflow-x-auto py-4 scrollbar-hide">
+                        <div className="flex gap-3 overflow-x-auto py-5 hide-scrollbar">
                             {categories.map((category) => (
                                 <button
                                     key={category}
-                                    className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                                        category === "All"
-                                            ? "bg-primary text-primary-foreground"
-                                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                    onClick={() => setActiveCategory(category)}
+                                    className={`whitespace-nowrap rounded-md px-5 py-2 text-xs font-bold uppercase tracking-widest transition-colors shadow-sm ${
+                                        activeCategory === category
+                                            ? "bg-black text-white"
+                                            : "bg-white text-zinc-500 border border-zinc-200 hover:text-black hover:border-black"
                                     }`}
                                 >
                                     {category}
@@ -153,33 +157,38 @@ export default function BlogPage() {
                 </section>
 
                 {/* Blog Posts Grid */}
-                <section className="py-12">
+                <section className="py-16 md:py-24 bg-white">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-xl font-semibold">Latest Articles</h2>
-                        <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="flex items-center justify-between mb-12">
+                            <h2 className="text-2xl font-black tracking-tight text-black">Latest Articles</h2>
+                        </div>
+
+                        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                             {blogPosts.map((post) => (
                                 <Link
                                     key={post.id}
-                                    href={`/blog/${post.id}`}
-                                    className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-accent hover:shadow-lg"
+                                    to={`/blog/${post.id}`}
+                                    className="group flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white transition-all hover:border-black hover:shadow-lg hover:-translate-y-1"
                                 >
-                                    <div className="overflow-hidden">
+                                    <div className="overflow-hidden bg-zinc-50">
                                         <img
                                             src={post.image}
                                             alt={post.title}
-                                            className="aspect-[3/2] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                            className="aspect-[3/2] w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
                                     </div>
-                                    <div className="flex flex-1 flex-col p-5">
-                                        <Badge variant="secondary" className="w-fit">{post.category}</Badge>
-                                        <h3 className="mt-3 font-semibold leading-snug group-hover:text-accent">
+                                    <div className="flex flex-1 flex-col p-6">
+                                        <span className="w-fit inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest bg-zinc-100 text-black border border-zinc-200 mb-4">
+                                            {post.category}
+                                        </span>
+                                        <h3 className="font-bold text-lg leading-snug text-black group-hover:text-zinc-600 transition-colors">
                                             {post.title}
                                         </h3>
-                                        <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                                        <p className="mt-3 flex-1 text-sm font-medium leading-relaxed text-zinc-500 line-clamp-2">
                                             {post.excerpt}
                                         </p>
-                                        <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                                            <span>{post.author}</span>
+                                        <div className="mt-6 pt-6 border-t border-zinc-100 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                                            <span className="text-black">{post.author}</span>
                                             <span>{post.readTime}</span>
                                         </div>
                                     </div>
@@ -190,24 +199,24 @@ export default function BlogPage() {
                 </section>
 
                 {/* Newsletter */}
-                <section className="bg-primary py-16">
+                <section className="bg-black py-24">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="mx-auto max-w-2xl text-center">
-                            <h2 className="text-2xl font-bold text-primary-foreground sm:text-3xl">
+                            <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
                                 Subscribe to Our Newsletter
                             </h2>
-                            <p className="mt-4 text-primary-foreground/80">
+                            <p className="mt-4 text-base font-medium text-zinc-400">
                                 Get the latest healthcare insights, product updates, and industry news delivered to your inbox.
                             </p>
-                            <form className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+                            <form className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
                                 <input
                                     type="email"
-                                    placeholder="Enter your email"
-                                    className="h-11 rounded-lg border-0 bg-primary-foreground px-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:w-80"
+                                    placeholder="Enter your email address"
+                                    className="h-12 rounded-md border border-zinc-800 bg-zinc-900 px-5 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-white focus:border-white sm:w-80 text-sm font-medium transition-all"
                                 />
                                 <button
                                     type="submit"
-                                    className="h-11 rounded-lg bg-foreground px-6 font-medium text-background transition-colors hover:bg-foreground/90"
+                                    className="h-12 rounded-md bg-white px-8 text-sm font-bold uppercase tracking-widest text-black transition-colors hover:bg-zinc-200 shadow-lg"
                                 >
                                     Subscribe
                                 </button>
@@ -217,7 +226,72 @@ export default function BlogPage() {
                 </section>
             </main>
 
-            <Footer />
+            {/* Global Footer to match the rest of the app */}
+            <footer className="bg-white pt-20 pb-10">
+                <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 text-sm mb-16">
+                    <div>
+                        <span className="text-xl font-black tracking-tighter text-black mb-6 flex items-center gap-2">
+                            <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center font-black text-white text-xs">
+                                A
+                            </div> ALTAIR<span className="text-zinc-400">.</span>
+                        </span>
+                        <p className="text-zinc-500 mb-6 leading-relaxed font-medium">Providing reliable medical equipment and supplies to healthcare institutions and individuals worldwide since 2012.</p>
+                        <div className="flex gap-3 text-black">
+                            <a href="#" className="p-2 bg-zinc-50 border border-zinc-200 rounded-md hover:bg-zinc-100 transition-colors"><Twitter className="w-4 h-4" /></a>
+                            <a href="#" className="p-2 bg-zinc-50 border border-zinc-200 rounded-md hover:bg-zinc-100 transition-colors"><Eye className="w-4 h-4" /></a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 className="text-black font-bold mb-6 uppercase tracking-widest text-xs">Customer Service</h4>
+                        <ul className="space-y-4 text-zinc-500 font-medium">
+                            <li><a href="#" className="hover:text-black transition-colors">My Account</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Track an Order</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Shipping & Returns</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Support Center</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="text-black font-bold mb-6 uppercase tracking-widest text-xs">Explore</h4>
+                        <ul className="space-y-4 text-zinc-500 font-medium">
+                            <li><a href="#" className="hover:text-black transition-colors">Equipment Maintenance</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Quality Standards</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Our Story</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="text-black font-bold mb-6 uppercase tracking-widest text-xs">Newsletter</h4>
+                        <p className="text-zinc-500 mb-4 font-medium">Stay updated with the latest in medical technology and supplies.</p>
+                        <div className="flex flex-col gap-3">
+                            <input type="email" placeholder="Email address" className="bg-zinc-50 border border-zinc-200 text-black px-4 py-3 w-full rounded-md focus:outline-none focus:border-black" />
+                            <button className="bg-black text-white px-4 py-3 rounded-md hover:bg-zinc-800 transition-colors font-bold uppercase tracking-widest text-[11px]">
+                                Subscribe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="max-w-7xl mx-auto px-6 border-t border-zinc-200 pt-8 flex flex-col md:flex-row items-center justify-between text-zinc-400 text-[10px] font-bold uppercase tracking-widest">
+                    <p>&copy; 2026 ALTAIR Health. All rights reserved.</p>
+                    <div className="flex gap-4 mt-4 md:mt-0 items-center">
+                        <span>GSTIN: 07AAACA1234A1Z5</span>
+                    </div>
+                </div>
+            </footer>
+
+            {/* Floating WhatsApp Button */}
+            <a
+                href="https://wa.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="fixed bottom-8 right-8 bg-black text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform z-50 flex items-center justify-center border border-zinc-800"
+                aria-label="Contact us on WhatsApp"
+            >
+                <MessageCircle className="w-6 h-6" />
+            </a>
         </div>
-    )
+    );
 }
