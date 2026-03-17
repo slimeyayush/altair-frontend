@@ -82,29 +82,29 @@ const App = () => {
     });
 
     return (
-        <div className="flex min-h-screen flex-col bg-white text-slate-900 font-sans selection:bg-[#00A152] selection:text-white">
+        <div className="flex min-h-screen flex-col bg-white text-zinc-900 font-sans selection:bg-black selection:text-white">
             <Navbar />
 
             <main className="flex-1">
-                {/* Hero Section (Updated to new design) */}
-                <section className="relative overflow-hidden bg-[#0B2C5A]">
+                {/* Hero Section */}
+                <section className="relative overflow-hidden bg-black">
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:3rem_3rem]" />
                     <div className="relative mx-auto max-w-6xl px-6 py-20 sm:py-32">
                         <div className="mx-auto max-w-2xl text-center">
-                            <p className="text-xs font-bold uppercase tracking-widest text-[#00A152] mb-4">
+                            <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">
                                 Trusted by 2,000+ healthcare institutions
                             </p>
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight mb-6 leading-[1.1]">
                                 Precision Medical Equipment for Modern Healthcare
                             </h1>
-                            <p className="text-sm md:text-base font-medium leading-relaxed text-slate-300 mb-10 max-w-xl mx-auto">
+                            <p className="text-sm md:text-base font-medium leading-relaxed text-zinc-400 mb-10 max-w-xl mx-auto">
                                 ALTAIR Health delivers cutting-edge medical technology to hospitals, clinics, and healthcare professionals. Experience innovation, reliability, and excellence in every product.
                             </p>
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                <Link to="/shop" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#00A152] hover:bg-[#008a46] text-white font-bold px-8 py-4 rounded-xl transition-all uppercase tracking-widest text-xs shadow-lg shadow-[#00A152]/20">
+                                <Link to="/shop" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-zinc-200 text-black font-bold px-8 py-4 rounded-md transition-all uppercase tracking-widest text-xs shadow-lg">
                                     Browse Products <ArrowRight className="w-4 h-4" />
                                 </Link>
-                                <Link to="/contact" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-transparent border border-white/30 text-white hover:bg-white/10 font-bold px-8 py-4 rounded-xl transition-all uppercase tracking-widest text-xs">
+                                <Link to="/contact" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-transparent border border-white/30 text-white hover:bg-white/10 font-bold px-8 py-4 rounded-md transition-all uppercase tracking-widest text-xs">
                                     Request a Quote
                                 </Link>
                             </div>
@@ -113,13 +113,13 @@ const App = () => {
                 </section>
 
                 {/* Trusted By Strip */}
-                <section className="border-b border-slate-100 bg-slate-50 py-6">
+                <section className="border-b border-zinc-200 bg-zinc-50 py-6">
                     <div className="mx-auto max-w-6xl px-6">
                         <div className="flex flex-col md:flex-row items-center gap-6 md:justify-between">
-                            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Trusted by leading institutions</p>
+                            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Trusted by leading institutions</p>
                             <div className="flex flex-wrap items-center justify-center gap-8">
                                 {trustedBy.map((name) => (
-                                    <span key={name} className="text-sm font-bold text-slate-400">
+                                    <span key={name} className="text-sm font-bold text-zinc-400">
                                         {name}
                                     </span>
                                 ))}
@@ -132,21 +132,21 @@ const App = () => {
                 <section className="py-20 bg-white">
                     <div className="mx-auto max-w-6xl px-6">
                         <div className="mx-auto max-w-xl text-center mb-16">
-                            <h2 className="text-3xl font-black tracking-tight text-[#0B2C5A] mb-4">
+                            <h2 className="text-3xl font-black tracking-tight text-black mb-4">
                                 Why Healthcare Leaders Choose ALTAIR
                             </h2>
-                            <p className="text-sm font-medium text-slate-500">
+                            <p className="text-sm font-medium text-zinc-500">
                                 We combine innovation with reliability to deliver equipment you can trust.
                             </p>
                         </div>
                         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                             {features.map((feature) => (
-                                <div key={feature.title} className="group rounded-3xl border border-slate-100 bg-slate-50 p-6 transition-all hover:border-[#00A152]/30 hover:shadow-lg hover:-translate-y-1">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-slate-100 text-[#0B2C5A] mb-6 shadow-sm group-hover:text-[#00A152] transition-colors">
+                                <div key={feature.title} className="group rounded-xl border border-zinc-200 bg-white p-6 transition-all hover:border-black hover:shadow-lg hover:-translate-y-1">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100 text-black mb-6 group-hover:bg-black group-hover:text-white transition-colors">
                                         <feature.icon className="h-6 w-6" />
                                     </div>
-                                    <h3 className="text-base font-black text-[#0B2C5A] mb-2">{feature.title}</h3>
-                                    <p className="text-sm font-medium leading-relaxed text-slate-500">
+                                    <h3 className="text-base font-black text-black mb-2">{feature.title}</h3>
+                                    <p className="text-sm font-medium leading-relaxed text-zinc-500">
                                         {feature.description}
                                     </p>
                                 </div>
@@ -155,16 +155,16 @@ const App = () => {
                     </div>
                 </section>
 
-                {/* Categories (Updated Visuals, Kept Logic) */}
+                {/* Categories */}
                 {categoryData.length > 0 && (
-                    <section className="bg-slate-50 py-20 border-t border-slate-100">
+                    <section className="bg-zinc-50 py-20 border-t border-zinc-200">
                         <div className="mx-auto max-w-7xl px-6">
                             <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
                                 <div>
-                                    <h2 className="text-3xl font-black tracking-tight text-[#0B2C5A] mb-2">Product Categories</h2>
-                                    <p className="text-sm font-medium text-slate-500">Explore our comprehensive range of medical equipment.</p>
+                                    <h2 className="text-3xl font-black tracking-tight text-black mb-2">Product Categories</h2>
+                                    <p className="text-sm font-medium text-zinc-500">Explore our comprehensive range of medical equipment.</p>
                                 </div>
-                                <Link to="/shop" className="hidden sm:flex items-center gap-2 bg-white border border-slate-200 text-[#0B2C5A] hover:bg-slate-100 font-bold px-6 py-3 rounded-lg transition-all text-xs uppercase tracking-widest shadow-sm">
+                                <Link to="/shop" className="hidden sm:flex items-center gap-2 bg-white border border-zinc-200 text-black hover:bg-zinc-100 hover:border-black font-bold px-6 py-3 rounded-md transition-all text-xs uppercase tracking-widest shadow-sm">
                                     View All Products <ArrowRight className="w-4 h-4" />
                                 </Link>
                             </div>
@@ -174,23 +174,23 @@ const App = () => {
                                     <Link
                                         key={idx}
                                         to={`/shop?category=${encodeURIComponent(category.name)}`}
-                                        className="group relative overflow-hidden rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500"
+                                        className="group relative overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition-all duration-500"
                                     >
                                         <div className="aspect-[4/5] md:aspect-square overflow-hidden bg-white">
                                             {category.imageUrl ? (
                                                 <img
                                                     src={category.imageUrl}
                                                     alt={category.name}
-                                                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                    className="h-full w-full object-cover grayscale transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0"
                                                 />
                                             ) : (
-                                                <div className="h-full w-full bg-slate-200 transition-transform duration-700 group-hover:scale-105" />
+                                                <div className="h-full w-full bg-zinc-200 transition-transform duration-700 group-hover:scale-105" />
                                             )}
                                         </div>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B2C5A]/90 via-[#0B2C5A]/40 to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                                         <div className="absolute inset-x-0 bottom-0 p-6">
                                             <h3 className="text-xl font-black text-white leading-tight mb-1">{category.name}</h3>
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#00A152] group-hover:text-white transition-colors">
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">
                                                 Explore &rarr;
                                             </p>
                                         </div>
@@ -198,7 +198,7 @@ const App = () => {
                                 ))}
                             </div>
                             <div className="mt-8 sm:hidden">
-                                <Link to="/shop" className="flex items-center justify-center gap-2 w-full bg-white border border-slate-200 text-[#0B2C5A] hover:bg-slate-100 font-bold px-6 py-4 rounded-xl transition-all text-xs uppercase tracking-widest shadow-sm">
+                                <Link to="/shop" className="flex items-center justify-center gap-2 w-full bg-white border border-zinc-200 text-black hover:bg-zinc-100 font-bold px-6 py-4 rounded-md transition-all text-xs uppercase tracking-widest shadow-sm">
                                     View All Products <ArrowRight className="w-4 h-4" />
                                 </Link>
                             </div>
@@ -206,14 +206,14 @@ const App = () => {
                     </section>
                 )}
 
-                {/* Featured Products (Logic Unchanged) */}
+                {/* Featured Products */}
                 <section className="max-w-7xl mx-auto px-6 py-20 bg-white">
                     <div className="flex justify-between items-end mb-12">
-                        <h2 className="text-3xl font-black tracking-tight text-[#0B2C5A]">Featured Inventory</h2>
+                        <h2 className="text-3xl font-black tracking-tight text-black">Featured Inventory</h2>
                     </div>
 
                     {products.length === 0 ? (
-                        <div className="text-slate-400 font-mono text-sm flex items-center justify-center py-24">
+                        <div className="text-zinc-400 font-mono text-sm flex items-center justify-center py-24">
                             [ loading catalogue... ]
                         </div>
                     ) : (
@@ -223,53 +223,53 @@ const App = () => {
                                 const cartItem = cartItems.find(item => item.product.id === product.id && !item.variantDetails);
 
                                 return (
-                                    <div key={product.id} className="group bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#00A152]/30 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full relative">
+                                    <div key={product.id} className="group bg-white p-5 rounded-xl border border-zinc-200 shadow-sm hover:shadow-xl hover:border-black hover:-translate-y-1 transition-all duration-300 flex flex-col h-full relative">
                                         {hasVariants && (
-                                            <span className="absolute top-8 left-8 z-10 bg-slate-900 text-white text-[9px] uppercase tracking-widest font-bold px-2 py-1 rounded flex items-center gap-1 shadow-sm">
+                                            <span className="absolute top-8 left-8 z-10 bg-black text-white text-[9px] uppercase tracking-widest font-bold px-2 py-1 rounded-sm flex items-center gap-1 shadow-sm">
                                                 <Layers className="w-3 h-3" /> Options
                                             </span>
                                         )}
                                         {product.tag && (
-                                            <span className={`absolute top-8 ${hasVariants ? 'right-8' : 'left-8'} z-10 bg-[#0B2C5A] text-white text-[9px] uppercase tracking-widest font-bold px-2 py-1 rounded shadow-sm`}>
+                                            <span className={`absolute top-8 ${hasVariants ? 'right-8' : 'left-8'} z-10 bg-black text-white text-[9px] uppercase tracking-widest font-bold px-2 py-1 rounded-sm shadow-sm`}>
                                                 {product.tag}
                                             </span>
                                         )}
 
-                                        <Link to={`/product/${product.id}`} className="block w-full aspect-square bg-slate-50 rounded-2xl mb-6 overflow-hidden relative cursor-pointer flex items-center justify-center mix-blend-multiply transition-colors group-hover:bg-[#0B2C5A]/5">
+                                        <Link to={`/product/${product.id}`} className="block w-full aspect-square bg-zinc-50 rounded-lg mb-6 overflow-hidden relative cursor-pointer flex items-center justify-center mix-blend-multiply transition-colors group-hover:bg-zinc-100">
                                             {product.imageUrl ? (
                                                 <img src={product.imageUrl} alt={product.name} className="object-contain w-3/4 h-3/4 group-hover:scale-110 transition-transform duration-500" />
                                             ) : (
-                                                <span className="font-mono text-slate-300 text-xs">no_image_data</span>
+                                                <span className="font-mono text-zinc-300 text-xs">no_image_data</span>
                                             )}
                                         </Link>
 
                                         <div className="flex flex-col flex-grow">
-                                            <Link to={`/product/${product.id}`} className="block cursor-pointer hover:text-[#00A152] transition-colors mb-1">
-                                                <h4 className="font-bold text-slate-900 leading-snug line-clamp-2">{product.name}</h4>
+                                            <Link to={`/product/${product.id}`} className="block cursor-pointer hover:text-zinc-600 transition-colors mb-1">
+                                                <h4 className="font-bold text-black leading-snug line-clamp-2">{product.name}</h4>
                                             </Link>
-                                            <div className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">{product.category}</div>
+                                            <div className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-3">{product.category}</div>
 
-                                            <div className="text-xl font-black text-[#0B2C5A] mb-6 mt-auto">
+                                            <div className="text-xl font-black text-black mb-6 mt-auto">
                                                 ₹{product.price.toLocaleString('en-IN')}
                                             </div>
 
                                             <div className="mt-auto">
                                                 {hasVariants ? (
-                                                    <Link to={`/product/${product.id}`} className="w-full bg-white border border-slate-200 hover:bg-[#0B2C5A] hover:border-[#0B2C5A] hover:text-white text-slate-700 font-bold py-3 rounded-xl transition-all duration-300 text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm">
+                                                    <Link to={`/product/${product.id}`} className="w-full bg-white border border-zinc-200 hover:bg-black hover:border-black hover:text-white text-black font-bold py-3 rounded-md transition-all duration-300 text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm">
                                                         Select Options
                                                     </Link>
                                                 ) : cartItem ? (
-                                                    <div className="flex items-center justify-between border border-slate-200 rounded-xl bg-slate-50 h-12 px-2">
-                                                        <button onClick={(e) => { e.preventDefault(); updateQuantity(product.id, -1); }} className="w-8 h-8 hover:bg-white text-[#0B2C5A] rounded-lg flex items-center justify-center transition-colors shadow-sm">
+                                                    <div className="flex items-center justify-between border border-zinc-200 rounded-md bg-zinc-50 h-12 px-2">
+                                                        <button onClick={(e) => { e.preventDefault(); updateQuantity(product.id, -1); }} className="w-8 h-8 hover:bg-white hover:border hover:border-zinc-200 text-black rounded-sm flex items-center justify-center transition-colors shadow-sm">
                                                             <Minus className="w-4 h-4" />
                                                         </button>
-                                                        <span className="font-bold text-sm text-[#0B2C5A] w-8 text-center">{cartItem.quantity}</span>
-                                                        <button onClick={(e) => { e.preventDefault(); updateQuantity(product.id, 1); }} disabled={cartItem.quantity >= product.stockQuantity} className="w-8 h-8 hover:bg-white disabled:opacity-50 text-[#0B2C5A] rounded-lg flex items-center justify-center transition-colors shadow-sm">
+                                                        <span className="font-bold text-sm text-black w-8 text-center">{cartItem.quantity}</span>
+                                                        <button onClick={(e) => { e.preventDefault(); updateQuantity(product.id, 1); }} disabled={cartItem.quantity >= product.stockQuantity} className="w-8 h-8 hover:bg-white hover:border hover:border-zinc-200 disabled:opacity-50 text-black rounded-sm flex items-center justify-center transition-colors shadow-sm">
                                                             <Plus className="w-4 h-4" />
                                                         </button>
                                                     </div>
                                                 ) : (
-                                                    <button onClick={(e) => { e.preventDefault(); addToCart(product); }} disabled={product.stockQuantity <= 0} className="w-full bg-white border border-slate-200 hover:bg-[#00A152] hover:border-[#00A152] hover:text-white disabled:bg-slate-50 disabled:border-slate-100 disabled:text-slate-400 text-slate-700 font-bold py-3 rounded-xl transition-all duration-300 text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm">
+                                                    <button onClick={(e) => { e.preventDefault(); addToCart(product); }} disabled={product.stockQuantity <= 0} className="w-full bg-white border border-zinc-200 hover:bg-black hover:border-black hover:text-white disabled:bg-zinc-50 disabled:border-zinc-100 disabled:text-zinc-400 text-black font-bold py-3 rounded-md transition-all duration-300 text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm">
                                                         <ShoppingCart className="w-4 h-4" />
                                                         {product.stockQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
                                                     </button>
@@ -284,13 +284,13 @@ const App = () => {
                 </section>
 
                 {/* Stats Section */}
-                <section className="py-16 bg-[#00A152]">
+                <section className="py-16 bg-black">
                     <div className="mx-auto max-w-6xl px-6">
                         <div className="grid gap-8 grid-cols-2 md:grid-cols-4">
                             {stats.map((stat) => (
                                 <div key={stat.label} className="text-center">
                                     <p className="text-4xl font-black tracking-tight text-white mb-2">{stat.value}</p>
-                                    <p className="text-xs font-bold uppercase tracking-widest text-white/80">{stat.label}</p>
+                                    <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">{stat.label}</p>
                                 </div>
                             ))}
                         </div>
@@ -298,21 +298,21 @@ const App = () => {
                 </section>
 
                 {/* Testimonials Section */}
-                <section className="py-20 bg-slate-50 border-b border-slate-100">
+                <section className="py-20 bg-zinc-50 border-b border-zinc-200">
                     <div className="max-w-7xl mx-auto px-6">
-                        <h2 className="text-3xl font-black tracking-tight text-[#0B2C5A] text-center mb-16">Trusted by Healthcare Professionals</h2>
+                        <h2 className="text-3xl font-black tracking-tight text-black text-center mb-16">Trusted by Healthcare Professionals</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {testimonials.map((testimonial, idx) => (
-                                <div key={idx} className="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 flex flex-col hover:shadow-xl transition-shadow duration-300">
-                                    <div className="flex gap-1 text-yellow-400 mb-8">
+                                <div key={idx} className="bg-white p-10 rounded-xl shadow-sm border border-zinc-200 flex flex-col hover:shadow-lg transition-shadow duration-300">
+                                    <div className="flex gap-1 text-black mb-8">
                                         {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current" />)}
                                     </div>
-                                    <p className="text-slate-600 mb-10 text-sm md:text-base leading-relaxed flex-grow font-medium">
+                                    <p className="text-zinc-600 mb-10 text-sm md:text-base leading-relaxed flex-grow font-medium">
                                         {testimonial.quote}
                                     </p>
-                                    <div className="border-t border-slate-100 pt-6">
-                                        <h4 className="font-black text-slate-900">{testimonial.name}</h4>
-                                        <p className="text-slate-400 text-[10px] font-bold mt-1 uppercase tracking-widest">{testimonial.title}</p>
+                                    <div className="border-t border-zinc-100 pt-6">
+                                        <h4 className="font-black text-black">{testimonial.name}</h4>
+                                        <p className="text-zinc-400 text-[10px] font-bold mt-1 uppercase tracking-widest">{testimonial.title}</p>
                                     </div>
                                 </div>
                             ))}
@@ -321,19 +321,19 @@ const App = () => {
                 </section>
 
                 {/* CTA Section */}
-                <section className="bg-[#0B2C5A] py-20">
+                <section className="bg-black py-20">
                     <div className="mx-auto max-w-4xl px-6 text-center">
                         <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white mb-6">
                             Ready to Transform Your Healthcare Facility?
                         </h2>
-                        <p className="text-base font-medium text-slate-300 mb-10 max-w-2xl mx-auto">
+                        <p className="text-base font-medium text-zinc-400 mb-10 max-w-2xl mx-auto">
                             Get in touch with our team for personalized recommendations, bulk orders, and competitive pricing.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Link to="/contact" className="w-full sm:w-auto bg-[#00A152] hover:bg-[#008a46] text-white font-bold px-8 py-4 rounded-xl transition-all uppercase tracking-widest text-xs shadow-lg shadow-[#00A152]/20">
+                            <Link to="/contact" className="w-full sm:w-auto bg-white hover:bg-zinc-200 text-black font-bold px-8 py-4 rounded-md transition-all uppercase tracking-widest text-xs shadow-lg">
                                 Request a Quote
                             </Link>
-                            <Link to="/shop" className="w-full sm:w-auto bg-transparent border border-white/30 text-white hover:bg-white/10 font-bold px-8 py-4 rounded-xl transition-all uppercase tracking-widest text-xs">
+                            <Link to="/shop" className="w-full sm:w-auto bg-transparent border border-white/30 text-white hover:bg-white/10 font-bold px-8 py-4 rounded-md transition-all uppercase tracking-widest text-xs">
                                 Browse Catalog
                             </Link>
                         </div>
@@ -345,51 +345,51 @@ const App = () => {
             <footer className="bg-white pt-20 pb-10">
                 <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 text-sm mb-16">
                     <div>
-                        <span className="text-xl font-black tracking-tighter text-[#0B2C5A] mb-6 flex items-center gap-2">
-                            <div className="w-6 h-6 bg-[#00A152] rounded-sm flex items-center justify-center font-black text-white text-xs">
+                        <span className="text-xl font-black tracking-tighter text-black mb-6 flex items-center gap-2">
+                            <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center font-black text-white text-xs">
                                 A
-                            </div> ALTAIR<span className="text-[#00A152]">.</span>
+                            </div> ALTAIR<span className="text-zinc-400">.</span>
                         </span>
-                        <p className="text-slate-500 mb-6 leading-relaxed font-medium">Providing reliable medical equipment and supplies to healthcare institutions and individuals worldwide since 2012.</p>
-                        <div className="flex gap-3 text-[#0B2C5A]">
-                            <a href="#" className="p-2 bg-slate-50 border border-slate-100 rounded-full hover:bg-slate-100 transition-colors"><Twitter className="w-4 h-4" /></a>
-                            <a href="#" className="p-2 bg-slate-50 border border-slate-100 rounded-full hover:bg-slate-100 transition-colors"><Eye className="w-4 h-4" /></a>
+                        <p className="text-zinc-500 mb-6 leading-relaxed font-medium">Providing reliable medical equipment and supplies to healthcare institutions and individuals worldwide since 2012.</p>
+                        <div className="flex gap-3 text-black">
+                            <a href="#" className="p-2 bg-zinc-50 border border-zinc-200 rounded-md hover:bg-zinc-100 transition-colors"><Twitter className="w-4 h-4" /></a>
+                            <a href="#" className="p-2 bg-zinc-50 border border-zinc-200 rounded-md hover:bg-zinc-100 transition-colors"><Eye className="w-4 h-4" /></a>
                         </div>
                     </div>
 
                     <div>
-                        <h4 className="text-slate-900 font-bold mb-6 uppercase tracking-widest text-xs">Customer Service</h4>
-                        <ul className="space-y-4 text-slate-500 font-medium">
-                            <li><a href="#" className="hover:text-[#00A152] transition-colors">My Account</a></li>
-                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Track an Order</a></li>
-                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Shipping & Returns</a></li>
-                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Support Center</a></li>
+                        <h4 className="text-black font-bold mb-6 uppercase tracking-widest text-xs">Customer Service</h4>
+                        <ul className="space-y-4 text-zinc-500 font-medium">
+                            <li><a href="#" className="hover:text-black transition-colors">My Account</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Track an Order</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Shipping & Returns</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Support Center</a></li>
                         </ul>
                     </div>
 
                     <div>
-                        <h4 className="text-slate-900 font-bold mb-6 uppercase tracking-widest text-xs">Explore</h4>
-                        <ul className="space-y-4 text-slate-500 font-medium">
-                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Equipment Maintenance</a></li>
-                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Quality Standards</a></li>
-                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Our Story</a></li>
-                            <li><a href="#" className="hover:text-[#00A152] transition-colors">Privacy Policy</a></li>
+                        <h4 className="text-black font-bold mb-6 uppercase tracking-widest text-xs">Explore</h4>
+                        <ul className="space-y-4 text-zinc-500 font-medium">
+                            <li><a href="#" className="hover:text-black transition-colors">Equipment Maintenance</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Quality Standards</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Our Story</a></li>
+                            <li><a href="#" className="hover:text-black transition-colors">Privacy Policy</a></li>
                         </ul>
                     </div>
 
                     <div>
-                        <h4 className="text-slate-900 font-bold mb-6 uppercase tracking-widest text-xs">Newsletter</h4>
-                        <p className="text-slate-500 mb-4 font-medium">Stay updated with the latest in medical technology and supplies.</p>
+                        <h4 className="text-black font-bold mb-6 uppercase tracking-widest text-xs">Newsletter</h4>
+                        <p className="text-zinc-500 mb-4 font-medium">Stay updated with the latest in medical technology and supplies.</p>
                         <div className="flex flex-col gap-3">
-                            <input type="email" placeholder="Email address" className="bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 w-full rounded-lg focus:outline-none focus:border-[#0B2C5A]" />
-                            <button className="bg-[#0B2C5A] text-white px-4 py-3 rounded-lg hover:bg-[#082042] transition-colors font-bold uppercase tracking-widest text-[11px]">
+                            <input type="email" placeholder="Email address" className="bg-zinc-50 border border-zinc-200 text-black px-4 py-3 w-full rounded-md focus:outline-none focus:border-black" />
+                            <button className="bg-black text-white px-4 py-3 rounded-md hover:bg-zinc-800 transition-colors font-bold uppercase tracking-widest text-[11px]">
                                 Subscribe
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-6 border-t border-slate-100 pt-8 flex flex-col md:flex-row items-center justify-between text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                <div className="max-w-7xl mx-auto px-6 border-t border-zinc-200 pt-8 flex flex-col md:flex-row items-center justify-between text-zinc-400 text-[10px] font-bold uppercase tracking-widest">
                     <p>&copy; 2026 ALTAIR Health. All rights reserved.</p>
                     <div className="flex gap-4 mt-4 md:mt-0 items-center">
                         <span>GSTIN: 07AAACA1234A1Z5</span>
@@ -401,7 +401,7 @@ const App = () => {
                 href="https://wa.me/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="fixed bottom-8 right-8 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform z-50 flex items-center justify-center"
+                className="fixed bottom-8 right-8 bg-black text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform z-50 flex items-center justify-center border border-zinc-800"
                 aria-label="Contact us on WhatsApp"
             >
                 <MessageCircle className="w-6 h-6" />
