@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ShoppingCart, Plus, Minus, Star, Filter, Tag, LayoutGrid, List, Check } from 'lucide-react';
@@ -9,6 +7,7 @@ import Navbar from "./Navbar.jsx";
 
 export default function ShopPage() {
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const { cartItems, addToCart, updateQuantity } = useCart();
@@ -25,30 +24,33 @@ export default function ShopPage() {
     const [inStockOnly, setInStockOnly] = useState(false);
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products`);
-                setProducts(response.data);
+                const [productsRes, categoriesRes] = await Promise.all([
+                    axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products`),
+                    axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products/categories`)
+                ]);
+                setProducts(productsRes.data);
+                setCategories(categoriesRes.data);
             } catch (err) {
-                console.error("Error fetching products:", err);
+                console.error("Error fetching data:", err);
                 setError("Failed to load products. Please try again later.");
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchProducts();
+        fetchData();
     }, []);
 
-    // Extract unique categories and brands for the sidebar
-    const allCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+    // Extract unique brands for the sidebar directly from products
     const allBrands = [...new Set(products.map(p => p.brand).filter(Boolean))];
 
-    const handleCategoryChange = (category) => {
+    const handleCategoryChange = (categoryName) => {
         const newParams = new URLSearchParams(searchParams);
-        if (selectedCategory === category) {
+        if (selectedCategory === categoryName) {
             newParams.delete('category');
         } else {
-            newParams.set('category', category);
+            newParams.set('category', categoryName);
         }
         setSearchParams(newParams);
     };
@@ -156,29 +158,30 @@ export default function ShopPage() {
                                 <Filter className="w-4 h-4" /> Filters
                             </div>
 
-                            {/* Categories List */}
-                            <div>
-                                <h3 className="font-semibold text-black mb-4 text-sm">Categories</h3>
-                                <div className="space-y-3">
-                                    {allCategories.map(cat => (
-                                        <label key={cat} className="flex items-center gap-3 cursor-pointer group">
-                                            {/* ADDED MISSING INPUT */}
-                                            <input
-                                                type="checkbox"
-                                                className="hidden"
-                                                checked={selectedCategory === cat}
-                                                onChange={() => handleCategoryChange(cat)}
-                                            />
-                                            <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors ${selectedCategory === cat ? 'bg-black border-black text-white' : 'border-zinc-300 bg-transparent group-hover:border-black'}`}>
-                                                {selectedCategory === cat && <Check className="h-3 w-3" />}
-                                            </div>
-                                            <span className={`text-sm transition-colors ${selectedCategory === cat ? 'text-black font-medium' : 'text-zinc-600 group-hover:text-black'}`}>
-                                                {cat}
-                                            </span>
-                                        </label>
-                                    ))}
+                            {/* Categories List (Mapped from Database state) */}
+                            {categories.length > 0 && (
+                                <div>
+                                    <h3 className="font-semibold text-black mb-4 text-sm">Categories</h3>
+                                    <div className="space-y-3">
+                                        {categories.map(cat => (
+                                            <label key={cat.id} className="flex items-center gap-3 cursor-pointer group">
+                                                <input
+                                                    type="checkbox"
+                                                    className="hidden"
+                                                    checked={selectedCategory === cat.name}
+                                                    onChange={() => handleCategoryChange(cat.name)}
+                                                />
+                                                <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors ${selectedCategory === cat.name ? 'bg-black border-black text-white' : 'border-zinc-300 bg-transparent group-hover:border-black'}`}>
+                                                    {selectedCategory === cat.name && <Check className="h-3 w-3" />}
+                                                </div>
+                                                <span className={`text-sm transition-colors ${selectedCategory === cat.name ? 'text-black font-medium' : 'text-zinc-600 group-hover:text-black'}`}>
+                                                    {cat.name}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Brands List */}
                             {allBrands.length > 0 && (
@@ -189,7 +192,6 @@ export default function ShopPage() {
                                     <div className="space-y-3">
                                         {allBrands.map(brand => (
                                             <label key={brand} className="flex items-center gap-3 cursor-pointer group">
-                                                {/* ADDED MISSING INPUT */}
                                                 <input
                                                     type="checkbox"
                                                     className="hidden"

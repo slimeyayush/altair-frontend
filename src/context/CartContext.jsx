@@ -10,7 +10,6 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const { user, loading } = useAuth();
 
-    // Helper to get auth header
     const getAuthHeader = async () => {
         if (!user) return null;
         const token = await user.getIdToken();
@@ -45,16 +44,15 @@ export const CartProvider = ({ children }) => {
         }
     }, [cartItems, user, loading]);
 
-    // 3. ADD TO CART (Now supports Variants)
-    const addToCart = async (product, variantDetails = null) => {
+    // 3. ADD TO CART (Strictly using variantId now)
+    const addToCart = async (product, variantId = null, variantLabel = null) => {
         if (user) {
             try {
                 const config = await getAuthHeader();
                 const payload = {
                     productId: product.id,
                     quantity: 1,
-                    variantId: product.selectedVariantId,
-                    variantDetails: variantDetails
+                    variantId: variantId
                 };
                 const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/cart/add`, payload, config);
                 setCartItems(res.data);
@@ -63,24 +61,24 @@ export const CartProvider = ({ children }) => {
             }
         } else {
             setCartItems((prev) => {
-                const existingIndex = prev.findIndex((item) => item.product.id === product.id && item.variantDetails === variantDetails);
+                const existingIndex = prev.findIndex((item) => item.product.id === product.id && item.variantId === variantId);
                 if (existingIndex >= 0) {
                     const updated = [...prev];
                     updated[existingIndex].quantity += 1;
                     return updated;
                 }
-                return [...prev, { product, quantity: 1, variantDetails }];
+                // We store variantLabel just for display purposes in the guest cart UI
+                return [...prev, { product, quantity: 1, variantId, variantLabel }];
             });
         }
     };
 
-    // 4. UPDATE QUANTITY (Now supports Variants)
-    const updateQuantity = async (productId, delta, variantDetails = null) => {
+    // 4. UPDATE QUANTITY
+    const updateQuantity = async (productId, delta, variantId = null) => {
         if (user) {
             try {
                 const config = await getAuthHeader();
-                // Passing variantDetails to help DB distinguish items if needed
-                const res = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/cart/update/${productId}`, { delta, variantDetails }, config);
+                const res = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/cart/update/${productId}`, { delta, variantId }, config);
                 setCartItems(res.data);
             } catch (error) {
                 console.error("Error updating DB cart", error);
@@ -88,7 +86,7 @@ export const CartProvider = ({ children }) => {
         } else {
             setCartItems((prev) =>
                 prev.map((item) => {
-                    if (item.product.id === productId && item.variantDetails === variantDetails) {
+                    if (item.product.id === productId && item.variantId === variantId) {
                         return { ...item, quantity: item.quantity + delta };
                     }
                     return item;
@@ -97,19 +95,20 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    // 5. REMOVE FROM CART (Now supports Variants)
-    const removeFromCart = async (productId, variantDetails = null) => {
+    // 5. REMOVE FROM CART
+    const removeFromCart = async (productId, variantId = null) => {
         if (user) {
             try {
                 const config = await getAuthHeader();
-                // Passing variantDetails as query param so DB can drop the exact variant
-                const res = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/cart/remove/${productId}?variantDetails=${encodeURIComponent(variantDetails || '')}`, config);
+                // If variantId exists, send it, otherwise send an empty string
+                const vIdParam = variantId ? `?variantId=${variantId}` : '';
+                const res = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/cart/remove/${productId}${vIdParam}`, config);
                 setCartItems(res.data);
             } catch (error) {
                 console.error("Error removing from DB cart", error);
             }
         } else {
-            setCartItems((prev) => prev.filter((item) => !(item.product.id === productId && item.variantDetails === variantDetails)));
+            setCartItems((prev) => prev.filter((item) => !(item.product.id === productId && item.variantId === variantId)));
         }
     };
 

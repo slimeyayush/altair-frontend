@@ -63,23 +63,19 @@ const testimonials = [
 
 const App = () => {
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const { cartItems, addToCart, updateQuantity } = useCart();
 
-    // Fetch main grid products
+    // Fetch main grid products and dynamic categories
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products`)
             .then(response => setProducts(response.data))
             .catch(error => console.error("Error fetching products:", error));
-    }, []);
 
-    // Dynamically extract unique categories from the database products
-    const categoryData = [...new Set(products.map(p => p.category).filter(Boolean))].map(category => {
-        const firstProduct = products.find(p => p.category === category && p.imageUrl);
-        return {
-            name: category,
-            imageUrl: firstProduct ? firstProduct.imageUrl : null
-        };
-    });
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products/categories`)
+            .then(response => setCategories(response.data))
+            .catch(error => console.error("Error fetching categories:", error));
+    }, []);
 
     return (
         <div className="flex min-h-screen flex-col bg-white text-zinc-900 font-sans selection:bg-black selection:text-white">
@@ -111,6 +107,7 @@ const App = () => {
                         </div>
                     </div>
                 </section>
+
                 {/* Trusted By Strip */}
                 <section className="border-b border-zinc-200 bg-zinc-50 py-6">
                     <div className="mx-auto max-w-6xl px-6">
@@ -126,8 +123,9 @@ const App = () => {
                         </div>
                     </div>
                 </section>
-                {/* Categories (Updated to strictly match Reference UI) */}
-                {categoryData.length > 0 && (
+
+                {/* Categories */}
+                {categories.length > 0 && (
                     <section className="bg-zinc-50 py-20 border-t border-zinc-200">
                         <div className="mx-auto max-w-7xl px-6">
                             <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
@@ -141,13 +139,13 @@ const App = () => {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {categoryData.slice(0, 4).map((category, idx) => (
+                                {categories.slice(0, 4).map((category, idx) => (
                                     <Link
                                         key={idx}
                                         to={`/shop?category=${encodeURIComponent(category.name)}`}
                                         className="group relative overflow-hidden rounded-lg border border-zinc-200 bg-white"
                                     >
-                                        <div className="aspect-square overflow-hidden bg-zinc-100">
+                                        <div className="aspect-square overflow-hidden bg-zinc-100 flex items-center justify-center">
                                             {category.imageUrl ? (
                                                 <img
                                                     src={category.imageUrl}
@@ -155,7 +153,7 @@ const App = () => {
                                                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                 />
                                             ) : (
-                                                <div className="h-full w-full bg-zinc-200 transition-transform duration-500 group-hover:scale-105" />
+                                                <span className="font-mono text-zinc-300 text-xs">no_image</span>
                                             )}
                                         </div>
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -176,9 +174,6 @@ const App = () => {
                         </div>
                     </section>
                 )}
-
-
-
 
                 {/* Features Grid */}
                 <section className="py-20 bg-white">
@@ -206,9 +201,6 @@ const App = () => {
                         </div>
                     </div>
                 </section>
-
-
-
 
                 {/* Featured Products */}
                 <section className="max-w-7xl mx-auto px-6 py-20 bg-white">
